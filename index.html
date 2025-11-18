@@ -1,0 +1,234 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stopwatch | Reto TA</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="workspace">
+      <div class="view-stack">
+        <section class="view" data-view="intento-1" aria-hidden="true">
+          <section class="hero">
+            <header>
+              <h1>Stopwatch</h1>
+              <p>
+                Cronometro inspirado en Online Stopwatch, construido con HTML, CSS y JavaScript puro
+                como parte del reto tecnico Teaching Assistant.
+              </p>
+            </header>
+          </section>
+          <div class="stopwatch-card" data-stopwatch="advanced">
+            <div class="lcd-display" aria-live="polite">
+              <span class="time hours">00</span>
+              <span class="separator">:</span>
+              <span class="time minutes">00</span>
+              <span class="separator">:</span>
+              <span class="time seconds">00</span>
+              <span class="separator milli-separator">.</span>
+              <span class="time millis">00</span>
+            </div>
+            <div class="controls" role="group" aria-label="Controles del cronometro">
+              <button class="btn primary" data-action="start">Iniciar</button>
+              <button class="btn secondary" data-action="lap" disabled>Lap</button>
+              <button class="btn ghost" data-action="reset" disabled>Reiniciar</button>
+              <button class="btn ghost" data-action="fullscreen">Pantalla completa</button>
+            </div>
+            <div class="indicators">
+              <label class="toggle-sound">
+                <input type="checkbox" id="soundToggle" checked />
+                <span class="slider"></span>
+                <span class="label">Sonido al iniciar/parar</span>
+              </label>
+            </div>
+          </div>
+
+          <section class="laps-section">
+            <header>
+              <h2>Laps</h2>
+              <button class="btn ghost small" data-action="clear-laps" disabled>Limpiar</button>
+            </header>
+            <ol class="laps-list" aria-live="polite"></ol>
+          </section>
+        </section>
+
+        <section class="view" data-view="replica-minima" aria-hidden="true">
+          <header class="view-header">
+            <p class="eyebrow">Replica minima</p>
+            <h1>Primer prototipo</h1>
+            <p>
+              Version de referencia basada en el snippet obtenido via Apify. Minimalista, centrada en
+              el display y los botones esenciales.
+            </p>
+          </header>
+          <div class="minimal-card" data-stopwatch="minimal">
+            <div class="minimal-display" data-role="display">00:00:00</div>
+            <div class="minimal-controls">
+              <button class="btn primary" data-role="start">Iniciar</button>
+              <button class="btn ghost" data-role="reset" disabled>Reiniciar</button>
+            </div>
+            <p class="note">
+              Este modo muestra el alcance minimo viable del cronometro antes de iterar sobre el
+              estilo y caracteristicas extra.
+            </p>
+          </div>
+        </section>
+
+        <section class="view fullbleed is-active" data-view="replica-completa" aria-hidden="false">
+          <div class="os-page">
+            <header class="os-header">
+              <div class="logo">
+                <span class="logo-icon">
+                  <i class="fa-solid fa-circle-chevron-up up"></i>
+                  <i class="fa-solid fa-circle-chevron-down down"></i>
+                </span>
+                <strong>Online-Stopwatch</strong>
+              </div>
+              <div class="os-header-actions">
+                <button class="link">Log in</button>
+                <button class="pill green">Join Premium!</button>
+                <button class="link">Search</button>
+                <button class="link">Change Language</button>
+              </div>
+            </header>
+
+            <nav class="os-primary-nav">
+              <button class="nav-pill red">
+                <i class="fa-solid fa-person-running" ></i><span>Race Timers</span>
+              </button>
+              <button class="nav-pill green">
+                <i class="fa-solid fa-chalkboard-user"></i><span>Classroom Timers</span>
+              </button>
+              <button class="nav-pill purple">
+                <i class="fa-solid fa-gift"></i><span>Holiday Timers</span>
+              </button>
+              <button class="nav-pill orange">
+                <i class="fa-solid fa-user-group"></i><span>Random Name Pickers</span>
+              </button>
+              <button class="nav-pill gray">
+                <i class="fa-solid fa-dice"></i><span>Random Number Generators</span>
+              </button>
+              <button class="nav-pill pink">
+                <i class="fa-solid fa-eye"></i><span>Sensory Timers</span>
+              </button>
+              <button class="nav-pill blue">
+                <i class="fa-solid fa-clock"></i><span>Clocks</span>
+              </button>
+              <button class="nav-pill navy">
+                <i class="fa-solid fa-clipboard-check"></i><span>Exam Timers</span>
+              </button>
+              <button class="nav-pill lime">
+                <i class="fa-solid fa-dice-three"></i><span>Chance Games</span>
+              </button>
+              <button class="nav-pill magenta">
+                <i class="fa-solid fa-people-group"></i><span>Group Generators</span>
+              </button>
+              <button class="nav-pill amber">
+                <i class="fa-solid fa-person-chalkboard"></i><span>Presentation Timers</span>
+              </button>
+            </nav>
+
+            <section class="os-banner">
+              <p>Everybody needs a stopwatch at some point — and there's never one around!</p>
+              <p>
+                Well... Now there is! Online Stopwatch. A simple, fast online stopwatch and online
+                countdown timer always available when you need it.
+              </p>
+            </section>
+
+            <section class="os-selection">
+              <div class="os-selection-header">www.online-stopwatch.com</div>
+              <div class="os-selection-body">
+                <article class="os-card">
+                  <h2>Stopwatch</h2>
+                  <div class="os-arrow up"></div>
+                </article>
+                <article class="os-card">
+                  <h2>Countdown</h2>
+                  <div class="os-arrow down"></div>
+                </article>
+              </div>
+              <div class="os-selection-footer"></div>
+            </section>
+
+            <div class="os-cta-row">
+              <button class="pill green"><i class="fa-solid fa-plus"></i><span>Add to My Page!</span></button>
+              <button class="pill blue"><i class="fa-solid fa-expand"></i><span>Go Fullscreen!</span></button>
+              <button class="pill red"><i class="fa-solid fa-ban"></i><span>Go Ad Free!</span></button>
+            </div>
+
+            <section class="os-category">
+              <div class="category-row">
+                <button class="icon-btn home"><i class="fa-solid fa-house"></i><span>Home</span></button>
+                <button class="icon-btn red"><i class="fa-solid fa-flag-checkered"></i><span>Race Timers</span></button>
+                <button class="icon-btn green"><i class="fa-solid fa-chalkboard-user"></i><span>Classroom Timers</span></button>
+                <button class="icon-btn purple"><i class="fa-solid fa-gift"></i><span>Holiday Timers</span></button>
+                <button class="icon-btn orange"><i class="fa-solid fa-user-group"></i><span>Random Name Pickers</span></button>
+                <button class="icon-btn gray"><i class="fa-solid fa-dice"></i><span>Random Number Generators</span></button>
+                <button class="icon-btn pink"><i class="fa-solid fa-eye"></i><span>Sensory Timers</span></button>
+                <button class="icon-btn gold"><i class="fa-solid fa-calendar-day"></i><span>Dates</span></button>
+                <button class="icon-btn teal"><i class="fa-solid fa-clock"></i><span>Clocks</span></button>
+                <button class="icon-btn navy"><i class="fa-solid fa-clipboard-check"></i><span>Exam Timers</span></button>
+                <button class="icon-btn lime"><i class="fa-solid fa-dice-three"></i><span>Chance Games</span></button>
+                <button class="icon-btn magenta"><i class="fa-solid fa-people-group"></i><span>Group Generators</span></button>
+                <button class="icon-btn amber"><i class="fa-solid fa-person-chalkboard"></i><span>Presentation Timers</span></button>
+              </div>
+              <div class="tag-row">
+                <span>Countdown Timer</span>
+                <span>Large Stopwatch</span>
+                <span>Split Lap Timer</span>
+                <span>Egg Timer</span>
+                <span>Bomb Countdown</span>
+                <span>Clock Countdown</span>
+                <span>Chess Clock</span>
+                <span>Chess Timer</span>
+                <span>Online Clock</span>
+                <span>Online Alarm Clock</span>
+                <span>Online Digital Clock</span>
+                <span>Cash Clock</span>
+                <span>Interval Timer</span>
+                <span>Metronome</span>
+                <span>Custom Countdown</span>
+                <span>Talking Clock</span>
+              </div>
+            </section>
+
+            <section class="os-premium">
+              <div class="premium-card">
+                <p>Join now!</p>
+                <h3>For Premium Features!</h3>
+                <p>Ad-free experience, unlock exclusive timers and themes.</p>
+              </div>
+            </section>
+
+            <footer class="os-footer">
+              <nav>
+                <a href="#">Online Stopwatch</a>
+                <a href="#">Online Calculator</a>
+                <a href="#">Help & Support</a>
+                <a href="#">Contact Us</a>
+                <a href="#">Terms</a>
+                <a href="#">Privacy Policy</a>
+              </nav>
+            </footer>
+          </div>
+        </section>
+      </div>
+
+      <aside class="view-switcher" aria-label="Versiones del cronometro">
+        <p>Versiones</p>
+        <button class="active" data-view-target="intento-1">Intento 1</button>
+        <button data-view-target="replica-minima">Replica minima</button>
+        <button data-view-target="replica-completa">Replica completa</button>
+      </aside>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
