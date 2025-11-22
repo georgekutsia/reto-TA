@@ -28,7 +28,7 @@ body {
 .workspace {
   --ws-pad: clamp(1.2rem, 4vw, 3rem);
   width: 100%;
-  padding: 2.5rem calc(var(--ws-pad) + 260px) 4rem var(--ws-pad);
+  padding: 1.5rem calc(var(--ws-pad) + 260px) 2rem var(--ws-pad);
   position: relative;
 }
 
@@ -188,10 +188,9 @@ body {
   --pill-color: #15567d;
   flex: 0 1 auto;
   border-radius: 999px;
-  padding: 0.7rem 1.2rem;
+  padding: 0.3rem 0.6rem;
   color: #fff;
-  border: 5px solid #092333;
-  font-size: 1.3rem;
+  border: 3px solid #092333;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -203,16 +202,19 @@ body {
 
 .nav-pill i {
   background: var(--color-white);
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 1.8rem;
+  height: 1.8rem;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1rem;
   border: 2px solid rgba(255, 255, 255, 0.85);
 }
-
+.nav-pill span{
+  font-size: 1.2rem;
+  
+}
 .nav-pill.red {
   --pill-color: #C51414;
 }
@@ -248,13 +250,29 @@ body {
 }
 
 .os-banner {
-  background: linear-gradient(180deg, #0e5aae, #093d73);
+  background: #1F8BC7;
   color: #fff;
-  padding: 1.25rem;
-  border-radius: 18px;
+  padding: .9rem;
   text-align: center;
   font-size: 0.95rem;
   box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.25);
+  border-top: 15px solid #15567D;
+  border-bottom: 15px solid #15567D;
+}
+.os-banner div{
+  background: #15567D;
+  color: #fff;
+  padding: .25rem;
+  text-align: center;
+  font-size: 0.95rem;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.25);
+  width: 50%;
+  margin: auto;
+  border-radius: 40px;
+}
+.os-banner div p{
+  margin: auto;
+  padding: 4px;
 }
 
 .os-selection {
@@ -513,6 +531,7 @@ body {
 .view-header p {
   color: var(--text-muted);
   max-width: 60ch;
+
 }
 
 .hero header h1 {
