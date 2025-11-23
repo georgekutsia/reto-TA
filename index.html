@@ -10,6 +10,7 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="canvas.css" />
   </head>
   <body>
     <main class="workspace">
@@ -159,25 +160,30 @@
                   Well... Now there is! Online Stopwatch. 
                 </p>
                 <p>
-                 A simple, fast online stopwatch and online
+                  A simple, fast online stopwatch and online
                   countdown timer always available when you need it.
                 </p>
               </div>
             </section>
 
-            <section class="os-selection">
-              <div class="os-selection-header">www.online-stopwatch.com</div>
-              <div class="os-selection-body">
-                <article class="os-card">
-                  <h2>Stopwatch</h2>
-                  <div class="os-arrow up"></div>
-                </article>
-                <article class="os-card">
-                  <h2>Countdown</h2>
-                  <div class="os-arrow down"></div>
-                </article>
+            <section class="os-canvas" aria-label="Stopwatch canvas showcase">
+              <div class="canvas-header">www.online-stopwatch.com</div>
+              <div class="canvas-stage">
+                <div class="canvas-shell">
+                  <canvas id="stopwatchCanvas" width="942" height="518" role="img" aria-label="Stopwatch display area"></canvas>
+                  <div class="canvas-overlay">
+                    <article class="canvas-panel">
+                      <h2>Stopwatch</h2>
+                      <img src="public/arrow-up.png" alt="Flecha hacia arriba" />
+                    </article>
+                    <article class="canvas-panel">
+                      <h2>Countdown</h2>
+                      <img src="public/arrow-down.png" alt="Flecha hacia abajo" />
+                    </article>
+                  </div>
+                </div>
               </div>
-              <div class="os-selection-footer"></div>
+              <div class="canvas-footer"></div>
             </section>
 
             <div class="os-cta-row">
@@ -225,10 +231,10 @@
             </section>
 
             <section class="os-premium">
-              <div class="premium-card">
+              <button class="premium-card" type="button">
                 <p>Join now!</p>
                 <h3>For Premium Features!</h3>
-              </div>
+              </button>
             </section>
             <footer class="os-footer">
               <nav>

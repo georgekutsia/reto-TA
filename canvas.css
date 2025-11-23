@@ -1,0 +1,81 @@
+:root {
+  /* inherits global variables from styles.css */
+}
+
+.os-canvas {
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--clr-white-soft);
+}
+
+.canvas-header {
+  background: var(--clr-indigo);
+  color: var(--clr-white);
+  letter-spacing: 0.25em;
+  text-align: center;
+  font-size: 2rem;
+  padding: 0.9rem 1rem;
+  width: 50%;
+  margin: auto;
+}
+
+.canvas-stage {
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas-shell {
+  position: relative;
+  width: min(940px, 100%);
+  margin: 0 auto;
+}
+
+#stopwatchCanvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 942 / 518;
+  background: var(--clr-white);
+  border-radius: 24px;
+  border: none;
+}
+
+.canvas-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  padding: clamp(1rem, 4vw, 3rem);
+  pointer-events: none;
+}
+
+.canvas-panel {
+  background: rgba(var(--rgb-white), 0.96);
+  border-radius: 28px;
+  width: clamp(280px, 48%, 520px);
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.canvas-panel h2 {
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  margin-bottom: 1rem;
+  color: var(--clr-text-dark);
+}
+
+.canvas-panel img {
+  width: min(240px, 70%);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.canvas-footer {
+  background: var(--clr-indigo);
+  height: 60px;
+  width: 50%;
+  margin: auto;
+}
