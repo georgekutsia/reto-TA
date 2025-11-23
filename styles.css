@@ -13,6 +13,7 @@
   --clr-blue-link: #0d4ea4;
   --clr-blue-cta: #0363c4;
   --clr-blue-deep: #0047a3;
+  --clr-blue-dark: #15567d;
   --clr-blue-sky: #4da3ff;
   --clr-cyan: #38bdf8;
   --clr-cyan-strong: #0ea5e9;
@@ -496,17 +497,20 @@ body {
 
 .tag-row {
   margin-top: 1rem;
+  padding: 0.5rem 12vw;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
   justify-content: center;
 }
 
-.tag-row span {
-  background: rgba(var(--rgb-white), 0.15);
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
+.tag-row button {
+  background: var(--clr-blue-dark);
+  color: var(--clr-white);
+  font-size: 0.9rem;
+  width: 150px;
+  height: 30px;
+  cursor: pointer;
 }
 
 .os-premium {
