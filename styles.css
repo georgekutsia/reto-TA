@@ -82,6 +82,96 @@
   box-sizing: border-box;
 }
 
+button {
+  position: relative;
+  font-family: inherit;
+}
+
+button::after {
+  content: "No funciona. Es solo visual para la prueba técnica...";
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(var(--rgb-black), 0.8);
+  color: var(--clr-white);
+  font-size: 20px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+button:hover::after {
+  opacity: 1;
+}
+
+.os-header-actions button,
+.os-footer a,
+.premium-card a,
+.os-premium button {
+  position: relative;
+  cursor: pointer;
+}
+
+.os-header-actions button::after,
+.os-footer a::after,
+.premium-card a::after,
+.os-premium button::after {
+  content: "No funciona. Es solo visual para la prueba técnica...";
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(var(--rgb-black), 0.8);
+  color: var(--clr-white);
+  font-size: 20px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.os-header-actions button:hover::after,
+.os-footer a:hover::after,
+.premium-card a:hover::after,
+.os-premium button:hover::after {
+  opacity: 1;
+}
+
+.os-premium {
+  position: relative;
+  cursor: pointer;
+}
+
+.os-premium::after {
+  content: "No funciona. Es solo visual para la prueba técnica...";
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(var(--rgb-black), 0.8);
+  color: var(--clr-white);
+  font-size: 20px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.os-premium:hover::after {
+  opacity: 1;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -188,15 +278,15 @@ body {
 }
 
 .pill.green {
-  background: linear-gradient(180deg, var(--clr-green-mid), var(--clr-green-deep));
+  background: var(--clr-green);
 }
 
 .pill.blue {
-  background: linear-gradient(180deg, var(--clr-blue-sky), var(--clr-blue-cta));
+  background:  var(--clr-indigo);
 }
 
 .pill.red {
-  background: linear-gradient(180deg, var(--clr-red-soft), var(--clr-red-accent));
+  background: var(--clr-red-accent);
 }
 
 .header-pill {
