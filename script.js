@@ -306,8 +306,7 @@ function initCanvasStage() {
       startStamp: 0,
     },
     countdown: {
-      main: "00:00:00",
-      millis: "000",
+      input: "",
     },
     lastDirection: 1,
   };
@@ -318,6 +317,7 @@ function initCanvasStage() {
     countdownSet: null,
     countdownClear: null,
   };
+  const countdownDigitZones = [];
 
   const dpr = window.devicePixelRatio || 1;
 
@@ -616,6 +616,7 @@ function initCanvasStage() {
 
     controlZones.countdownSet = null;
     controlZones.countdownClear = null;
+    countdownDigitZones.length = 0;
 
     const topRow = ["5", "6", "7", "8", "9", "Set"];
     const bottomRow = ["0", "1", "2", "3", "4", "Clear"];
@@ -635,6 +636,8 @@ function initCanvasStage() {
       if (isAction) {
         const zoneKey = label === "Set" ? "countdownSet" : "countdownClear";
         controlZones[zoneKey] = { x, y, width, height };
+      } else {
+        countdownDigitZones.push({ x, y, width, height, value: label });
       }
     });
   }
@@ -737,6 +740,11 @@ function initCanvasStage() {
     }
 
     if (state.selection === "countdown") {
+      const digitHit = countdownDigitZones.find((zone) => pointInRect(coords, zone));
+      if (digitHit) {
+        handleCountdownDigit(digitHit.value);
+        return;
+      }
       if (controlZones.countdownSet && pointInRect(coords, controlZones.countdownSet)) {
         handleCountdownSet();
         return;
@@ -845,7 +853,15 @@ function initCanvasStage() {
   }
 
   function getCountdownSnapshot() {
-    return state.countdown;
+    const input = state.countdown.input || "";
+    const padded = input.padEnd(6, "0");
+    const seconds = padded.slice(0, 2);
+    const minutes = padded.slice(2, 4);
+    const hours = padded.slice(4, 6);
+    return {
+      main: `${hours}:${minutes}:${seconds}`,
+      millis: "000",
+    };
   }
 
   function handleStartButton() {
@@ -874,13 +890,28 @@ function initCanvasStage() {
   }
 
   function handleCountdownClear() {
-    state.countdown.main = "00:00:00";
-    state.countdown.millis = "000";
+    state.countdown.input = "";
+  }
+
+  function handleCountdownDigit(value) {
+    if (state.countdown.input.length >= 6) return;
+    state.countdown.input += value;
   }
 
   function updateTimer(timestamp) {
     if (state.timer.mode === "running") {
       state.timer.elapsed = timestamp - state.timer.startStamp;
+    }
+  }
+
+  function handleKeydown(evt) {
+    if (
+      state.view === "options" &&
+      state.selection === "countdown" &&
+      evt.key >= "0" &&
+      evt.key <= "9"
+    ) {
+      handleCountdownDigit(evt.key);
     }
   }
 
@@ -929,6 +960,8 @@ function initCanvasStage() {
           hover = "countdownSet";
         } else if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
           hover = "countdownClear";
+        } else if (countdownDigitZones.some((zone) => pointInRect(coords, zone))) {
+          hover = "countdownDigit";
         }
       } else {
         if (controlZones.start && pointInRect(coords, controlZones.start)) {
@@ -948,6 +981,8 @@ function initCanvasStage() {
   });
 
   requestAnimationFrame(loop);
+
+  window.addEventListener("keydown", handleKeydown);
 }
 
 
