@@ -307,6 +307,9 @@ function initCanvasStage() {
     },
     countdown: {
       input: "",
+      mode: "input", // input | ready | running | paused
+      remaining: 0,
+      lastTick: 0,
     },
     lastDirection: 1,
   };
@@ -357,6 +360,7 @@ function initCanvasStage() {
     const now = timestamp || performance.now();
     updateAnimation(now);
     updateTimer(now);
+    updateCountdown(now);
     drawScene();
     requestAnimationFrame(loop);
   }
@@ -508,7 +512,6 @@ function initCanvasStage() {
     } else {
       drawStopwatchOptions();
     }
-
     ctx.restore();
   }
 
@@ -605,24 +608,51 @@ function initCanvasStage() {
     );
     ctx.restore();
 
-    const keypadPadding = state.width * 0.04;
-    const keypadWidth = state.width - keypadPadding * 2;
-    const columns = 6;
-    const gap = state.width * 0.015;
-    const buttonHeight = state.height * 0.11;
-    const buttonWidth = (keypadWidth - gap * (columns - 1)) / columns;
-    const startX = keypadPadding;
-    const startY = displayY + displayHeight + displayPadding;
+    if (state.countdown.mode === "input") {
+      const keypadPadding = state.width * 0.04;
+      const keypadWidth = state.width - keypadPadding * 2;
+      const columns = 6;
+      const gap = state.width * 0.015;
+      const buttonHeight = state.height * 0.11;
+      const buttonWidth = (keypadWidth - gap * (columns - 1)) / columns;
+      const startX = keypadPadding;
+      const startY = displayY + displayHeight + displayPadding;
 
-    controlZones.countdownSet = null;
-    controlZones.countdownClear = null;
-    countdownDigitZones.length = 0;
+      controlZones.countdownSet = null;
+      controlZones.countdownClear = null;
+      countdownDigitZones.length = 0;
 
-    const topRow = ["5", "6", "7", "8", "9", "Set"];
-    const bottomRow = ["0", "1", "2", "3", "4", "Clear"];
+      const topRow = ["5", "6", "7", "8", "9", "Set"];
+      const bottomRow = ["0", "1", "2", "3", "4", "Clear"];
 
-    drawCountdownRow(topRow, startX, startY, buttonWidth, buttonHeight, gap);
-    drawCountdownRow(bottomRow, startX, startY + buttonHeight + gap, buttonWidth, buttonHeight, gap);
+      drawCountdownRow(topRow, startX, startY, buttonWidth, buttonHeight, gap);
+      drawCountdownRow(bottomRow, startX, startY + buttonHeight + gap, buttonWidth, buttonHeight, gap);
+    } else {
+      controlZones.countdownSet = null;
+      controlZones.countdownClear = null;
+      countdownDigitZones.length = 0;
+      const buttonWidth = state.width * 0.42;
+      const buttonHeight = state.height * 0.2;
+      const buttonsY = displayY + displayHeight + displayPadding * 1.5;
+      const gap = state.width * 0.06;
+      const centerX = state.width / 2;
+      const leftX = centerX - gap / 2 - buttonWidth;
+      const rightX = centerX + gap / 2;
+
+      controlZones.start = null;
+      controlZones.clear = null;
+
+      const countdownLabel =
+        state.countdown.mode === "running"
+          ? "Pause"
+          : state.countdown.mode === "paused"
+          ? "Continue"
+          : "Start";
+      const countdownColor = state.countdown.mode === "paused" ? "#1a61f0" : "#10c53d";
+
+      drawControlButton(leftX, buttonsY, buttonWidth, buttonHeight, countdownLabel, countdownColor, "start");
+      drawControlButton(rightX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626", "clear");
+    }
 
     drawBackBar();
   }
@@ -740,18 +770,29 @@ function initCanvasStage() {
     }
 
     if (state.selection === "countdown") {
-      const digitHit = countdownDigitZones.find((zone) => pointInRect(coords, zone));
-      if (digitHit) {
-        handleCountdownDigit(digitHit.value);
-        return;
-      }
-      if (controlZones.countdownSet && pointInRect(coords, controlZones.countdownSet)) {
-        handleCountdownSet();
-        return;
-      }
-      if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
-        handleCountdownClear();
-        return;
+      if (state.countdown.mode === "input") {
+        const digitHit = countdownDigitZones.find((zone) => pointInRect(coords, zone));
+        if (digitHit) {
+          handleCountdownDigit(digitHit.value);
+          return;
+        }
+        if (controlZones.countdownSet && pointInRect(coords, controlZones.countdownSet)) {
+          handleCountdownSet();
+          return;
+        }
+        if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
+          handleCountdownClear();
+          return;
+        }
+      } else {
+        if (controlZones.start && pointInRect(coords, controlZones.start)) {
+          handleCountdownStart();
+          return;
+        }
+        if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
+          handleCountdownClear();
+          return;
+        }
       }
     } else {
       if (controlZones.start && pointInRect(coords, controlZones.start)) {
@@ -853,14 +894,26 @@ function initCanvasStage() {
   }
 
   function getCountdownSnapshot() {
-    const input = state.countdown.input || "";
-    const padded = input.padEnd(6, "0");
-    const seconds = padded.slice(0, 2);
-    const minutes = padded.slice(2, 4);
-    const hours = padded.slice(4, 6);
+    if (state.countdown.mode === "input") {
+      const input = state.countdown.input || "";
+      const padded = input.padStart(6, "0");
+      const seconds = padded.slice(4, 6);
+      const minutes = padded.slice(2, 4);
+      const hours = padded.slice(0, 2);
+      return {
+        main: `${hours}:${minutes}:${seconds}`,
+        millis: "000",
+      };
+    }
+    const remaining = Math.max(0, Math.floor(state.countdown.remaining));
+    const hours = Math.floor(remaining / 3600000);
+    const minutes = Math.floor((remaining % 3600000) / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
     return {
-      main: `${hours}:${minutes}:${seconds}`,
-      millis: "000",
+      main: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`,
+      millis: Math.floor(remaining % 1000)
+        .toString()
+        .padStart(3, "0"),
     };
   }
 
@@ -886,16 +939,42 @@ function initCanvasStage() {
   }
 
   function handleCountdownSet() {
-    // Placeholder for future countdown configuration logic.
+    const totalMs = parseCountdownInput(state.countdown.input);
+    if (totalMs <= 0) return;
+    state.countdown.remaining = totalMs;
+    state.countdown.mode = "ready";
+    state.countdown.lastTick = performance.now();
+    state.countdown.input = "";
   }
 
   function handleCountdownClear() {
     state.countdown.input = "";
+    state.countdown.mode = "input";
+    state.countdown.remaining = 0;
   }
 
   function handleCountdownDigit(value) {
-    if (state.countdown.input.length >= 6) return;
-    state.countdown.input += value;
+    if (state.countdown.mode !== "input") return;
+    state.countdown.input = (state.countdown.input + value).slice(-6);
+  }
+
+  function handleCountdownBackspace() {
+    if (state.countdown.mode !== "input") return;
+    if (!state.countdown.input) return;
+    state.countdown.input = state.countdown.input.slice(0, -1);
+  }
+
+  function handleCountdownStart() {
+    const now = performance.now();
+    if (state.countdown.mode === "ready") {
+      state.countdown.mode = "running";
+      state.countdown.lastTick = now;
+    } else if (state.countdown.mode === "running") {
+      state.countdown.mode = "paused";
+    } else if (state.countdown.mode === "paused") {
+      state.countdown.mode = "running";
+      state.countdown.lastTick = now;
+    }
   }
 
   function updateTimer(timestamp) {
@@ -904,15 +983,48 @@ function initCanvasStage() {
     }
   }
 
+  function updateCountdown(timestamp) {
+    if (state.countdown.mode === "running") {
+      const delta = timestamp - (state.countdown.lastTick || timestamp);
+      state.countdown.lastTick = timestamp;
+      state.countdown.remaining = Math.max(0, state.countdown.remaining - delta);
+      if (state.countdown.remaining === 0) {
+        state.countdown.mode = "ready";
+      }
+    }
+  }
+
   function handleKeydown(evt) {
     if (
       state.view === "options" &&
       state.selection === "countdown" &&
-      evt.key >= "0" &&
-      evt.key <= "9"
+      state.countdown.mode === "input"
     ) {
-      handleCountdownDigit(evt.key);
+      if (evt.key >= "0" && evt.key <= "9") {
+        handleCountdownDigit(evt.key);
+      } else if (evt.key === "Backspace" || evt.key === "Delete") {
+        handleCountdownBackspace();
+      } else if (evt.key === "Enter") {
+        handleCountdownSet();
+      }
+    } else if (
+      state.view === "options" &&
+      state.selection === "countdown" &&
+      (evt.key === "Enter" || evt.key === "Return")
+    ) {
+      if (state.countdown.mode !== "input") {
+        handleCountdownStart();
+      }
     }
+  }
+
+  function parseCountdownInput(input) {
+    if (!input) return 0;
+    const padded = input.padStart(6, "0");
+    const hours = Number(padded.slice(0, 2));
+    const minutes = Number(padded.slice(2, 4));
+    const seconds = Number(padded.slice(4, 6));
+    return ((hours * 60 + minutes) * 60 + seconds) * 1000;
   }
 
   function startAnimation(type, selection, direction) {
