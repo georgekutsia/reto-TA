@@ -525,28 +525,7 @@ function initCanvasStage() {
     const displayX = (state.width - displayWidth) / 2;
     const displayY = bannerHeight + displayPadding;
 
-    ctx.save();
-    ctx.fillStyle = "#dfe6ff";
-    ctx.strokeStyle = "#1f1f1f";
-    ctx.lineWidth = Math.max(4, displayHeight * 0.04);
-    drawRoundedRect(displayX, displayY, displayWidth, displayHeight, 35);
-    ctx.fill();
-    ctx.stroke();
-
-    const timerSnapshot = getTimerSnapshot();
-
-    ctx.fillStyle = "#000000";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `700 ${displayHeight * 0.72}px Arial`;
-    ctx.fillText(timerSnapshot.main, state.width / 2, displayY + displayHeight * 0.54);
-
-    ctx.textAlign = "right";
-    ctx.textBaseline = "alphabetic";
-    ctx.font = `${displayHeight * 0.2}px Arial`;
-    const millisX = displayX + displayWidth - displayHeight * 0.4;
-    ctx.fillText(timerSnapshot.millis, millisX, displayY + displayHeight - displayHeight * 0.08);
-    ctx.restore();
+    drawTimerDisplay(displayX, displayY, displayWidth, displayHeight, getTimerSnapshot());
 
     const buttonWidth = state.width * 0.42;
     const buttonHeight = state.height * 0.2;
@@ -579,34 +558,11 @@ function initCanvasStage() {
     const bannerHeight = getBannerHeight();
     const displayPadding = state.height * 0.04;
     const displayWidth = state.width * 0.94;
-    const displayHeight = state.height * 0.3;
+    const displayHeight = state.height * 0.4;
     const displayX = (state.width - displayWidth) / 2;
     const displayY = bannerHeight + displayPadding;
 
-    ctx.save();
-    ctx.fillStyle = "#dfe6ff";
-    ctx.strokeStyle = "#1f1f1f";
-    ctx.lineWidth = Math.max(4, displayHeight * 0.04);
-    drawRoundedRect(displayX, displayY, displayWidth, displayHeight, 35);
-    ctx.fill();
-    ctx.stroke();
-
-    const countdownSnapshot = getCountdownSnapshot();
-    ctx.fillStyle = "#000000";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `700 ${displayHeight * 0.6}px Arial`;
-    ctx.fillText(countdownSnapshot.main, state.width / 2, displayY + displayHeight * 0.55);
-
-    ctx.textAlign = "right";
-    ctx.textBaseline = "alphabetic";
-    ctx.font = `${displayHeight * 0.18}px Arial`;
-    ctx.fillText(
-      countdownSnapshot.millis,
-      displayX + displayWidth - displayHeight * 0.4,
-      displayY + displayHeight - displayHeight * 0.12
-    );
-    ctx.restore();
+    drawTimerDisplay(displayX, displayY, displayWidth, displayHeight, getCountdownSnapshot());
 
     if (state.countdown.mode === "input") {
       const keypadPadding = state.width * 0.04;
@@ -739,6 +695,29 @@ function initCanvasStage() {
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
+  }
+
+  function drawTimerDisplay(x, y, width, height, snapshot) {
+    ctx.save();
+    ctx.fillStyle = "#dfe6ff";
+    ctx.strokeStyle = "#1f1f1f";
+    ctx.lineWidth = Math.max(4, height * 0.04);
+    drawRoundedRect(x, y, width, height, 35);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `700 ${height * 0.65}px Arial`;
+    ctx.fillText(snapshot.main, x + width / 2, y + height * 0.54);
+
+    ctx.textAlign = "right";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = `${height * 0.2}px Arial`;
+    const millisX = x + width - height * 0.4;
+    ctx.fillText(snapshot.millis, millisX, y + height - height * 0.08);
+    ctx.restore();
   }
 
   function getCanvasCoordinates(evt) {
@@ -1068,12 +1047,20 @@ function initCanvasStage() {
       if (pointInRect(coords, getBackBarBounds())) {
         hover = "back";
       } else if (state.selection === "countdown") {
-        if (controlZones.countdownSet && pointInRect(coords, controlZones.countdownSet)) {
-          hover = "countdownSet";
-        } else if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
-          hover = "countdownClear";
-        } else if (countdownDigitZones.some((zone) => pointInRect(coords, zone))) {
-          hover = "countdownDigit";
+        if (state.countdown.mode === "input") {
+          if (controlZones.countdownSet && pointInRect(coords, controlZones.countdownSet)) {
+            hover = "countdownSet";
+          } else if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
+            hover = "countdownClear";
+          } else if (countdownDigitZones.some((zone) => pointInRect(coords, zone))) {
+            hover = "countdownDigit";
+          }
+        } else {
+          if (controlZones.start && pointInRect(coords, controlZones.start)) {
+            hover = "start";
+          } else if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
+            hover = "clear";
+          }
         }
       } else {
         if (controlZones.start && pointInRect(coords, controlZones.start)) {
