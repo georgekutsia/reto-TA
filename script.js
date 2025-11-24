@@ -300,6 +300,16 @@ function initCanvasStage() {
     anim: null,
     ready: false,
     hoverTarget: null,
+    timer: {
+      mode: "idle",
+      elapsed: 0,
+      startStamp: 0,
+    },
+  };
+
+  const controlZones = {
+    start: null,
+    clear: null,
   };
 
   const dpr = window.devicePixelRatio || 1;
@@ -337,7 +347,9 @@ function initCanvasStage() {
   });
 
   function loop(timestamp) {
-    updateAnimation(timestamp || performance.now());
+    const now = timestamp || performance.now();
+    updateAnimation(now);
+    updateTimer(now);
     drawScene();
     requestAnimationFrame(loop);
   }
@@ -375,8 +387,8 @@ function initCanvasStage() {
         drawHomePanels(1 - progress, { translateX: progress * shift });
         drawOptionsPanels(state.anim.selection, progress, { translateX: -(1 - progress) * shift });
       } else if (state.anim.type === "toHome") {
-        drawOptionsPanels(state.selection, 1 - progress, { translateX: progress * shift });
-        drawHomePanels(progress, { translateX: -(1 - progress) * shift });
+        drawOptionsPanels(state.selection, 1 - progress, { translateX: -progress * shift });
+        drawHomePanels(progress, { translateX: (1 - progress) * shift });
       }
       return;
     }
@@ -485,8 +497,8 @@ function initCanvasStage() {
 
     const bannerHeight = getBannerHeight();
     const displayPadding = state.height * 0.04;
-    const displayWidth = state.width * 0.9;
-    const displayHeight = state.height * 0.25;
+    const displayWidth = state.width * 0.94;
+    const displayHeight = state.height * 0.4;
     const displayX = (state.width - displayWidth) / 2;
     const displayY = bannerHeight + displayPadding;
 
@@ -498,32 +510,48 @@ function initCanvasStage() {
     ctx.fill();
     ctx.stroke();
 
+    const timerSnapshot = getTimerSnapshot();
+
     ctx.fillStyle = "#000000";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `700 ${displayHeight * 0.55}px Arial`;
-    ctx.fillText("00:00:00", state.width / 2, displayY + displayHeight * 0.55);
+    ctx.font = `700 ${displayHeight * 0.72}px Arial`;
+    ctx.fillText(timerSnapshot.main, state.width / 2, displayY + displayHeight * 0.54);
 
     ctx.textAlign = "right";
     ctx.textBaseline = "alphabetic";
-    ctx.font = `${displayHeight * 0.18}px Arial`;
-    ctx.fillText("000", displayX + displayWidth - displayHeight * 0.08, displayY + displayHeight - displayHeight * 0.12);
+    ctx.font = `${displayHeight * 0.2}px Arial`;
+    const millisX = displayX + displayWidth - displayHeight * 0.4;
+    ctx.fillText(timerSnapshot.millis, millisX, displayY + displayHeight - displayHeight * 0.08);
     ctx.restore();
 
-    const buttonWidth = state.width * 0.34;
-    const buttonHeight = state.height * 0.16;
+    const buttonWidth = state.width * 0.42;
+    const buttonHeight = state.height * 0.2;
     const buttonsY = displayY + displayHeight + displayPadding * 1.5;
-    const leftX = state.width * 0.12;
-    const rightX = state.width - buttonWidth - leftX;
+    const gap = state.width * 0.06;
+    const centerX = state.width / 2;
+    const leftX = centerX - gap / 2 - buttonWidth;
+    const rightX = centerX + gap / 2;
 
-    drawControlButton(leftX, buttonsY, buttonWidth, buttonHeight, "Start", "#10c53d");
-    drawControlButton(rightX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626");
+    controlZones.start = null;
+    controlZones.clear = null;
+
+    const startLabel =
+      state.timer.mode === "running"
+        ? "Pause"
+        : state.timer.mode === "paused"
+        ? "Continue"
+        : "Start";
+    const startColor = state.timer.mode === "paused" ? "#1a61f0" : "#10c53d";
+
+    drawControlButton(leftX, buttonsY, buttonWidth, buttonHeight, startLabel, startColor, "start");
+    drawControlButton(rightX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626", "clear");
 
     drawBackBar();
     ctx.restore();
   }
 
-  function drawControlButton(x, y, width, height, label, color) {
+  function drawControlButton(x, y, width, height, label, color, id) {
     ctx.save();
     ctx.fillStyle = color;
     ctx.strokeStyle = "#1a1a1a";
@@ -537,6 +565,10 @@ function initCanvasStage() {
     ctx.font = `600 ${height * 0.45}px Arial`;
     ctx.fillText(label, x + width / 2, y + height / 2);
     ctx.restore();
+
+    if (id) {
+      controlZones[id] = { x, y, width, height };
+    }
   }
 
   function drawBackBar() {
@@ -590,7 +622,17 @@ function initCanvasStage() {
   function handleOptionsClick(coords) {
     const bounds = getBackBarBounds();
     if (pointInRect(coords, bounds)) {
+      handleClearButton();
       startAnimation("toHome");
+      return;
+    }
+    if (controlZones.start && pointInRect(coords, controlZones.start)) {
+      handleStartButton();
+      return;
+    }
+    if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
+      handleClearButton();
+      return;
     }
   }
 
@@ -669,6 +711,45 @@ function initCanvasStage() {
     return state.height * 0.12;
   }
 
+  function getTimerSnapshot() {
+    const elapsed = state.timer.elapsed;
+    const hours = Math.floor(elapsed / 3600000);
+    const minutes = Math.floor((elapsed % 3600000) / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    const millis = Math.floor(elapsed % 1000);
+    return {
+      main: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`,
+      millis: millis.toString().padStart(3, "0"),
+    };
+  }
+
+  function handleStartButton() {
+    const now = performance.now();
+    if (state.timer.mode === "idle") {
+      state.timer.elapsed = 0;
+      state.timer.startStamp = now;
+      state.timer.mode = "running";
+    } else if (state.timer.mode === "running") {
+      state.timer.elapsed = now - state.timer.startStamp;
+      state.timer.mode = "paused";
+    } else if (state.timer.mode === "paused") {
+      state.timer.startStamp = now - state.timer.elapsed;
+      state.timer.mode = "running";
+    }
+  }
+
+  function handleClearButton() {
+    state.timer.elapsed = 0;
+    state.timer.startStamp = performance.now();
+    state.timer.mode = "idle";
+  }
+
+  function updateTimer(timestamp) {
+    if (state.timer.mode === "running") {
+      state.timer.elapsed = timestamp - state.timer.startStamp;
+    }
+  }
+
   function startAnimation(type, selection) {
     state.anim = {
       type,
@@ -703,6 +784,10 @@ function initCanvasStage() {
     } else if (state.view === "options") {
       if (pointInRect(coords, getBackBarBounds())) {
         hover = "back";
+      } else if (controlZones.start && pointInRect(coords, controlZones.start)) {
+        hover = "start";
+      } else if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
+        hover = "clear";
       }
     }
     state.hoverTarget = hover;
