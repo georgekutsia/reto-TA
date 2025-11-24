@@ -299,6 +299,7 @@ function initCanvasStage() {
     selection: null,
     anim: null,
     ready: false,
+    hoverTarget: null,
   };
 
   const dpr = window.devicePixelRatio || 1;
@@ -369,24 +370,13 @@ function initCanvasStage() {
 
     if (state.anim) {
       const progress = state.anim.progress || 0;
+      const shift = state.width * 0.55;
       if (state.anim.type === "toOptions") {
-        drawHomePanels(1 - progress, {
-          translateX: progress * state.width * 0.32,
-          rotate: progress * 0.25,
-        });
-        drawOptionsPanels(state.anim.selection, progress, {
-          translateX: -(1 - progress) * state.width * 0.28,
-          rotate: -(1 - progress) * 0.18,
-        });
+        drawHomePanels(1 - progress, { translateX: progress * shift });
+        drawOptionsPanels(state.anim.selection, progress, { translateX: -(1 - progress) * shift });
       } else if (state.anim.type === "toHome") {
-        drawOptionsPanels(state.selection, 1 - progress, {
-          translateX: progress * state.width * 0.28,
-          rotate: progress * 0.18,
-        });
-        drawHomePanels(progress, {
-          translateX: -(1 - progress) * state.width * 0.32,
-          rotate: -(1 - progress) * 0.25,
-        });
+        drawOptionsPanels(state.selection, 1 - progress, { translateX: progress * shift });
+        drawHomePanels(progress, { translateX: -(1 - progress) * shift });
       }
       return;
     }
@@ -452,16 +442,8 @@ function initCanvasStage() {
   }
 
   function drawHomePanels(alpha, transform = {}) {
-    const panelWidth = state.width * 0.46;
-    const desiredHeight = state.height * 0.78;
-    const paddingX = state.width * 0.06;
-    const margin = state.height * 0.035;
-    const bannerHeight = getBannerHeight();
-    const topSafe = bannerHeight + margin;
-    const bottomSafe = state.height - bannerHeight - margin;
-    const maxPanelHeight = Math.max(bottomSafe - topSafe, 0);
-    const panelHeight = Math.min(desiredHeight, maxPanelHeight);
-    const y = topSafe + (maxPanelHeight - panelHeight) / 2;
+    const metrics = getPanelMetrics();
+    const { panelWidth, panelHeight, paddingX, y } = metrics;
     ctx.save();
     ctx.globalAlpha = alpha;
     applyTransform(transform);
@@ -497,65 +479,81 @@ function initCanvasStage() {
   }
 
   function drawOptionsPanels(selection, alpha, transform = {}) {
-    const items = optionSets[selection] || [];
     ctx.save();
     applyTransform(transform);
     ctx.globalAlpha = alpha;
 
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.font = `${state.width * 0.06}px Arial`;
+    const bannerHeight = getBannerHeight();
+    const displayPadding = state.height * 0.04;
+    const displayWidth = state.width * 0.9;
+    const displayHeight = state.height * 0.25;
+    const displayX = (state.width - displayWidth) / 2;
+    const displayY = bannerHeight + displayPadding;
+
+    ctx.save();
+    ctx.fillStyle = "#dfe6ff";
+    ctx.strokeStyle = "#1f1f1f";
+    ctx.lineWidth = Math.max(4, displayHeight * 0.04);
+    drawRoundedRect(displayX, displayY, displayWidth, displayHeight, 35);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#000000";
     ctx.textAlign = "center";
-    ctx.fillText(`${selection === "countdown" ? "Countdown" : "Stopwatch"} Modes`, state.width / 2, state.height * 0.18);
+    ctx.textBaseline = "middle";
+    ctx.font = `700 ${displayHeight * 0.55}px Arial`;
+    ctx.fillText("00:00:00", state.width / 2, displayY + displayHeight * 0.55);
 
-    const gridTop = state.height * 0.28;
-    const gridHeight = state.height * 0.5;
-    const buttonHeight = gridHeight / items.length - state.height * 0.01;
-    ctx.font = `${state.width * 0.035}px Arial`;
-    ctx.textAlign = "left";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = `${displayHeight * 0.18}px Arial`;
+    ctx.fillText("000", displayX + displayWidth - displayHeight * 0.08, displayY + displayHeight - displayHeight * 0.12);
+    ctx.restore();
 
-    items.forEach((label, index) => {
-      const y = gridTop + index * (buttonHeight + state.height * 0.02);
-      const x = state.width * 0.15;
-      const buttonWidth = state.width * 0.7;
-      drawOptionButton(x, y, buttonWidth, buttonHeight, label);
-    });
+    const buttonWidth = state.width * 0.34;
+    const buttonHeight = state.height * 0.16;
+    const buttonsY = displayY + displayHeight + displayPadding * 1.5;
+    const leftX = state.width * 0.12;
+    const rightX = state.width - buttonWidth - leftX;
+
+    drawControlButton(leftX, buttonsY, buttonWidth, buttonHeight, "Start", "#10c53d");
+    drawControlButton(rightX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626");
 
     drawBackBar();
     ctx.restore();
   }
 
-  function drawOptionButton(x, y, width, height, label) {
+  function drawControlButton(x, y, width, height, label, color) {
     ctx.save();
-    const gradient = ctx.createLinearGradient(x, y, x, y + height);
-    gradient.addColorStop(0, "#164a9a");
-    gradient.addColorStop(1, "#0a2f59");
-    ctx.fillStyle = gradient;
-    drawRoundedRect(x, y, width, height, 18);
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#1a1a1a";
+    ctx.lineWidth = Math.max(4, height * 0.08);
+    drawRoundedRect(x, y, width, height, 24);
     ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.font = `${height * 0.45}px Arial`;
-    ctx.textAlign = "left";
+    ctx.stroke();
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(label, x + width * 0.06, y + height / 2);
+    ctx.font = `600 ${height * 0.45}px Arial`;
+    ctx.fillText(label, x + width / 2, y + height / 2);
     ctx.restore();
   }
 
   function drawBackBar() {
     const bounds = getBackBarBounds();
     ctx.save();
-    ctx.fillStyle = "#0a8e34";
-    drawRoundedRect(bounds.x, bounds.y, bounds.width, bounds.height, bounds.height / 2);
-    ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.textBaseline = "middle";
     ctx.textAlign = "left";
-    const iconSize = bounds.height * 0.45;
-    const iconX = bounds.x + bounds.height * 0.25;
+    ctx.textBaseline = "middle";
+    const iconSize = bounds.height * 0.55;
+    const iconX = bounds.x + bounds.height * 0.35;
     const textY = bounds.y + bounds.height / 2;
+    const iconColor = state.hoverTarget === "back" ? "#ffd600" : "#1cc96b";
     ctx.font = `900 ${iconSize}px "Font Awesome 6 Free", Arial`;
+    ctx.fillStyle = iconColor;
     ctx.fillText("\uf060", iconX, textY);
-    ctx.font = `700 ${bounds.height * 0.4}px Arial`;
-    ctx.fillText("Back", iconX + iconSize * 0.95, textY);
+    ctx.font = `700 ${bounds.height * 0.45}px Arial`;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("Back", iconX + iconSize * 1.1, textY);
     ctx.restore();
   }
 
@@ -582,8 +580,8 @@ function initCanvasStage() {
   }
 
   function handleHomeClick(coords) {
-    const panels = getHomePanels();
-    const hit = panels.find((panel) => pointInRect(coords, panel));
+    const targets = getArrowTargets();
+    const hit = targets.find((target) => pointInRect(coords, target));
     if (hit) {
       startAnimation("toOptions", hit.mode);
     }
@@ -597,16 +595,8 @@ function initCanvasStage() {
   }
 
   function getHomePanels() {
-    const panelWidth = state.width * 0.46;
-    const desiredHeight = state.height * 0.78;
-    const paddingX = state.width * 0.06;
-    const margin = state.height * 0.035;
-    const bannerHeight = getBannerHeight();
-    const topSafe = bannerHeight + margin;
-    const bottomSafe = state.height - bannerHeight - margin;
-    const maxPanelHeight = Math.max(bottomSafe - topSafe, 0);
-    const panelHeight = Math.min(desiredHeight, maxPanelHeight);
-    const y = topSafe + (maxPanelHeight - panelHeight) / 2;
+    const metrics = getPanelMetrics();
+    const { panelWidth, panelHeight, paddingX, y } = metrics;
     return [
       { x: paddingX, y, width: panelWidth, height: panelHeight, mode: "stopwatch" },
       {
@@ -620,11 +610,31 @@ function initCanvasStage() {
   }
 
   function getBackBarBounds() {
-    const barWidth = state.width * 0.4;
-    const barHeight = state.height * 0.11;
-    const x = (state.width - barWidth) / 2;
-    const y = state.height - barHeight - state.height * 0.04;
-    return { x, y, width: barWidth, height: barHeight };
+    const bannerHeight = getBannerHeight();
+    const width = Math.max(state.width * 0.25, bannerHeight * 3);
+    const height = bannerHeight;
+    const x = 0;
+    const y = state.height - bannerHeight;
+    return { x, y, width, height };
+  }
+
+  function getArrowTargets() {
+    const panels = getHomePanels();
+    return panels
+      .map((panel) => {
+        const image = panel.mode === "stopwatch" ? images.stopwatch : images.countdown;
+        if (!image || !image.complete) return null;
+        const imgHeight = panel.height * 0.66;
+        const imgWidth = (image.width / image.height) * imgHeight;
+        return {
+          mode: panel.mode,
+          x: panel.x + (panel.width - imgWidth) / 2,
+          y: panel.y + panel.height * 0.3,
+          width: imgWidth,
+          height: imgHeight,
+        };
+      })
+      .filter(Boolean);
   }
 
   function pointInRect(point, rect) {
@@ -638,10 +648,21 @@ function initCanvasStage() {
   }
 
   function applyTransform({ translateX = 0, rotate = 0 } = {}) {
-    ctx.translate(state.width / 2, state.height / 2);
-    ctx.rotate(rotate);
-    ctx.translate(-state.width / 2, -state.height / 2);
     ctx.translate(translateX, 0);
+  }
+
+  function getPanelMetrics() {
+    const panelWidth = state.width * 0.46;
+    const desiredHeight = state.height * 0.78;
+    const paddingX = state.width * 0.06;
+    const margin = state.height * 0.035;
+    const bannerHeight = getBannerHeight();
+    const topSafe = bannerHeight + margin;
+    const bottomSafe = state.height - bannerHeight - margin;
+    const maxPanelHeight = Math.max(bottomSafe - topSafe, 0);
+    const panelHeight = Math.min(desiredHeight, maxPanelHeight);
+    const y = topSafe + (maxPanelHeight - panelHeight) / 2;
+    return { panelWidth, panelHeight, paddingX, y };
   }
 
   function getBannerHeight() {
@@ -671,20 +692,26 @@ function initCanvasStage() {
   canvas.addEventListener("mousemove", (evt) => {
     if (!state.ready || state.anim) {
       canvas.style.cursor = "default";
+      state.hoverTarget = null;
       return;
     }
     const coords = getCanvasCoordinates(evt);
-    let hovering = false;
+    let hover = null;
     if (state.view === "home") {
-      hovering = getHomePanels().some((panel) => pointInRect(coords, panel));
+      const target = getArrowTargets().find((t) => pointInRect(coords, t));
+      if (target) hover = target.mode;
     } else if (state.view === "options") {
-      hovering = pointInRect(coords, getBackBarBounds());
+      if (pointInRect(coords, getBackBarBounds())) {
+        hover = "back";
+      }
     }
-    canvas.style.cursor = hovering ? "pointer" : "default";
+    state.hoverTarget = hover;
+    canvas.style.cursor = hover ? "pointer" : "default";
   });
 
   canvas.addEventListener("mouseleave", () => {
     canvas.style.cursor = "default";
+    state.hoverTarget = null;
   });
 
   requestAnimationFrame(loop);
