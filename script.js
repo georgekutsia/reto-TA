@@ -360,6 +360,7 @@ function initCanvasStage() {
   function drawScene() {
     ctx.clearRect(0, 0, state.width, state.height);
     drawBackground();
+    drawBanners();
 
     if (!state.ready) {
       drawLoading();
@@ -402,16 +403,43 @@ function initCanvasStage() {
     ctx.fillRect(0, 0, state.width, state.height);
   }
 
+  function drawBanners() {
+    const bannerHeight = getBannerHeight();
+    drawBanner(0, true, bannerHeight);
+    drawBanner(state.height - bannerHeight, false, bannerHeight);
+  }
+
+  function drawBanner(y, showText, bannerHeight) {
+    ctx.save();
+    ctx.fillStyle = "#0c3d94";
+    ctx.fillRect(0, y, state.width, bannerHeight);
+    if (showText) {
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `600 ${bannerHeight * 0.45}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("www.online-stopwatch.com", state.width / 2, y + bannerHeight / 2);
+    }
+    ctx.restore();
+  }
+
   function drawSplitBackground() {
     const dividerWidth = state.width * 0.02;
     const dividerX = (state.width - dividerWidth) / 2;
+    const bannerHeight = getBannerHeight();
+    const topLimit = bannerHeight;
+    const bottomLimit = state.height - bannerHeight;
+    const fillHeight = Math.max(bottomLimit - topLimit, 0);
     ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, topLimit, state.width, fillHeight);
+    ctx.clip();
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, dividerX, state.height);
+    ctx.fillRect(0, topLimit, dividerX, fillHeight);
     ctx.fillStyle = "#f1f9f1";
-    ctx.fillRect(dividerX, 0, state.width - dividerX, state.height);
+    ctx.fillRect(dividerX, topLimit, state.width - dividerX, fillHeight);
     ctx.fillStyle = "rgba(0,0,0,0.05)";
-    ctx.fillRect(dividerX - dividerWidth / 2, 0, dividerWidth, state.height);
+    ctx.fillRect(dividerX - dividerWidth / 2, topLimit, dividerWidth, fillHeight);
     ctx.restore();
   }
 
@@ -425,9 +453,15 @@ function initCanvasStage() {
 
   function drawHomePanels(alpha, transform = {}) {
     const panelWidth = state.width * 0.46;
-    const panelHeight = state.height * 0.78;
+    const desiredHeight = state.height * 0.78;
     const paddingX = state.width * 0.06;
-    const y = (state.height - panelHeight) / 2;
+    const margin = state.height * 0.035;
+    const bannerHeight = getBannerHeight();
+    const topSafe = bannerHeight + margin;
+    const bottomSafe = state.height - bannerHeight - margin;
+    const maxPanelHeight = Math.max(bottomSafe - topSafe, 0);
+    const panelHeight = Math.min(desiredHeight, maxPanelHeight);
+    const y = topSafe + (maxPanelHeight - panelHeight) / 2;
     ctx.save();
     ctx.globalAlpha = alpha;
     applyTransform(transform);
@@ -564,9 +598,15 @@ function initCanvasStage() {
 
   function getHomePanels() {
     const panelWidth = state.width * 0.46;
-    const panelHeight = state.height * 0.78;
+    const desiredHeight = state.height * 0.78;
     const paddingX = state.width * 0.06;
-    const y = (state.height - panelHeight) / 2;
+    const margin = state.height * 0.035;
+    const bannerHeight = getBannerHeight();
+    const topSafe = bannerHeight + margin;
+    const bottomSafe = state.height - bannerHeight - margin;
+    const maxPanelHeight = Math.max(bottomSafe - topSafe, 0);
+    const panelHeight = Math.min(desiredHeight, maxPanelHeight);
+    const y = topSafe + (maxPanelHeight - panelHeight) / 2;
     return [
       { x: paddingX, y, width: panelWidth, height: panelHeight, mode: "stopwatch" },
       {
@@ -602,6 +642,10 @@ function initCanvasStage() {
     ctx.rotate(rotate);
     ctx.translate(-state.width / 2, -state.height / 2);
     ctx.translate(translateX, 0);
+  }
+
+  function getBannerHeight() {
+    return state.height * 0.12;
   }
 
   function startAnimation(type, selection) {

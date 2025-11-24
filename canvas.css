@@ -3,7 +3,7 @@
 }
 
 .os-canvas {
-  border-radius: 20px;
+  border-radius: 0;
   overflow: hidden;
   background: var(--clr-white-soft);
 }
@@ -28,15 +28,15 @@
 
 .canvas-shell {
   position: relative;
-  width: min(940px, 100%);
+  width: min(1100px, 100%);
   margin: 0 auto;
 }
 
 #stopwatchCanvas {
   width: 100%;
   height: auto;
-  aspect-ratio: 942 / 518;
+  aspect-ratio: 1100 / 640;
   background: var(--clr-white);
-  border-radius: 24px;
+  border-radius: 0;
   border: none;
 }
