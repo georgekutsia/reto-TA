@@ -305,11 +305,18 @@ function initCanvasStage() {
       elapsed: 0,
       startStamp: 0,
     },
+    countdown: {
+      main: "00:00:00",
+      millis: "000",
+    },
+    lastDirection: 1,
   };
 
   const controlZones = {
     start: null,
     clear: null,
+    countdownSet: null,
+    countdownClear: null,
   };
 
   const dpr = window.devicePixelRatio || 1;
@@ -383,12 +390,13 @@ function initCanvasStage() {
     if (state.anim) {
       const progress = state.anim.progress || 0;
       const shift = state.width * 0.55;
+      const dir = state.anim.direction || 1;
       if (state.anim.type === "toOptions") {
-        drawHomePanels(1 - progress, { translateX: progress * shift });
-        drawOptionsPanels(state.anim.selection, progress, { translateX: -(1 - progress) * shift });
+        drawHomePanels(1 - progress, { translateX: progress * shift * dir });
+        drawOptionsPanels(state.anim.selection, progress, { translateX: -(1 - progress) * shift * dir });
       } else if (state.anim.type === "toHome") {
-        drawOptionsPanels(state.selection, 1 - progress, { translateX: -progress * shift });
-        drawHomePanels(progress, { translateX: (1 - progress) * shift });
+        drawOptionsPanels(state.selection, 1 - progress, { translateX: -progress * shift * dir });
+        drawHomePanels(progress, { translateX: (1 - progress) * shift * dir });
       }
       return;
     }
@@ -495,6 +503,18 @@ function initCanvasStage() {
     applyTransform(transform);
     ctx.globalAlpha = alpha;
 
+    if (selection === "countdown") {
+      drawCountdownOptions();
+    } else {
+      drawStopwatchOptions();
+    }
+
+    ctx.restore();
+  }
+
+  function drawStopwatchOptions() {
+    controlZones.countdownSet = null;
+    controlZones.countdownClear = null;
     const bannerHeight = getBannerHeight();
     const displayPadding = state.height * 0.04;
     const displayWidth = state.width * 0.94;
@@ -548,6 +568,90 @@ function initCanvasStage() {
     drawControlButton(rightX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626", "clear");
 
     drawBackBar();
+  }
+
+  function drawCountdownOptions() {
+    controlZones.start = null;
+    controlZones.clear = null;
+    const bannerHeight = getBannerHeight();
+    const displayPadding = state.height * 0.04;
+    const displayWidth = state.width * 0.94;
+    const displayHeight = state.height * 0.3;
+    const displayX = (state.width - displayWidth) / 2;
+    const displayY = bannerHeight + displayPadding;
+
+    ctx.save();
+    ctx.fillStyle = "#dfe6ff";
+    ctx.strokeStyle = "#1f1f1f";
+    ctx.lineWidth = Math.max(4, displayHeight * 0.04);
+    drawRoundedRect(displayX, displayY, displayWidth, displayHeight, 35);
+    ctx.fill();
+    ctx.stroke();
+
+    const countdownSnapshot = getCountdownSnapshot();
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `700 ${displayHeight * 0.6}px Arial`;
+    ctx.fillText(countdownSnapshot.main, state.width / 2, displayY + displayHeight * 0.55);
+
+    ctx.textAlign = "right";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = `${displayHeight * 0.18}px Arial`;
+    ctx.fillText(
+      countdownSnapshot.millis,
+      displayX + displayWidth - displayHeight * 0.4,
+      displayY + displayHeight - displayHeight * 0.12
+    );
+    ctx.restore();
+
+    const keypadPadding = state.width * 0.04;
+    const keypadWidth = state.width - keypadPadding * 2;
+    const columns = 6;
+    const gap = state.width * 0.015;
+    const buttonHeight = state.height * 0.11;
+    const buttonWidth = (keypadWidth - gap * (columns - 1)) / columns;
+    const startX = keypadPadding;
+    const startY = displayY + displayHeight + displayPadding;
+
+    controlZones.countdownSet = null;
+    controlZones.countdownClear = null;
+
+    const topRow = ["5", "6", "7", "8", "9", "Set"];
+    const bottomRow = ["0", "1", "2", "3", "4", "Clear"];
+
+    drawCountdownRow(topRow, startX, startY, buttonWidth, buttonHeight, gap);
+    drawCountdownRow(bottomRow, startX, startY + buttonHeight + gap, buttonWidth, buttonHeight, gap);
+
+    drawBackBar();
+  }
+
+  function drawCountdownRow(labels, startX, y, width, height, gap) {
+    labels.forEach((label, index) => {
+      const x = startX + index * (width + gap);
+      const isAction = label === "Set" || label === "Clear";
+      const color = label === "Clear" ? "#c4c4c4" : "#0ed946";
+      drawCountdownButton(x, y, width, height, label, color);
+      if (isAction) {
+        const zoneKey = label === "Set" ? "countdownSet" : "countdownClear";
+        controlZones[zoneKey] = { x, y, width, height };
+      }
+    });
+  }
+
+  function drawCountdownButton(x, y, width, height, label, color) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#1a1a1a";
+    ctx.lineWidth = Math.max(3, height * 0.08);
+    drawRoundedRect(x, y, width, height, 20);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `600 ${height * 0.45}px Arial`;
+    ctx.fillText(label, x + width / 2, y + height / 2);
     ctx.restore();
   }
 
@@ -615,24 +719,41 @@ function initCanvasStage() {
     const targets = getArrowTargets();
     const hit = targets.find((target) => pointInRect(coords, target));
     if (hit) {
-      startAnimation("toOptions", hit.mode);
+      const direction = hit.mode === "countdown" ? -1 : 1;
+      startAnimation("toOptions", hit.mode, direction);
     }
   }
 
   function handleOptionsClick(coords) {
     const bounds = getBackBarBounds();
     if (pointInRect(coords, bounds)) {
-      handleClearButton();
+      if (state.selection === "stopwatch") {
+        handleClearButton();
+      } else if (state.selection === "countdown") {
+        handleCountdownClear();
+      }
       startAnimation("toHome");
       return;
     }
-    if (controlZones.start && pointInRect(coords, controlZones.start)) {
-      handleStartButton();
-      return;
-    }
-    if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
-      handleClearButton();
-      return;
+
+    if (state.selection === "countdown") {
+      if (controlZones.countdownSet && pointInRect(coords, controlZones.countdownSet)) {
+        handleCountdownSet();
+        return;
+      }
+      if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
+        handleCountdownClear();
+        return;
+      }
+    } else {
+      if (controlZones.start && pointInRect(coords, controlZones.start)) {
+        handleStartButton();
+        return;
+      }
+      if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
+        handleClearButton();
+        return;
+      }
     }
   }
 
@@ -723,6 +844,10 @@ function initCanvasStage() {
     };
   }
 
+  function getCountdownSnapshot() {
+    return state.countdown;
+  }
+
   function handleStartButton() {
     const now = performance.now();
     if (state.timer.mode === "idle") {
@@ -744,20 +869,35 @@ function initCanvasStage() {
     state.timer.mode = "idle";
   }
 
+  function handleCountdownSet() {
+    // Placeholder for future countdown configuration logic.
+  }
+
+  function handleCountdownClear() {
+    state.countdown.main = "00:00:00";
+    state.countdown.millis = "000";
+  }
+
   function updateTimer(timestamp) {
     if (state.timer.mode === "running") {
       state.timer.elapsed = timestamp - state.timer.startStamp;
     }
   }
 
-  function startAnimation(type, selection) {
+  function startAnimation(type, selection, direction) {
+    const animDirection =
+      typeof direction === "number" ? direction : state.lastDirection || 1;
     state.anim = {
       type,
       selection: selection || state.selection,
       start: performance.now(),
       duration: 650,
       progress: 0,
+      direction: animDirection,
     };
+    if (type === "toOptions" && typeof direction === "number") {
+      state.lastDirection = direction;
+    }
   }
 
   canvas.addEventListener("click", (evt) => {
@@ -784,10 +924,18 @@ function initCanvasStage() {
     } else if (state.view === "options") {
       if (pointInRect(coords, getBackBarBounds())) {
         hover = "back";
-      } else if (controlZones.start && pointInRect(coords, controlZones.start)) {
-        hover = "start";
-      } else if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
-        hover = "clear";
+      } else if (state.selection === "countdown") {
+        if (controlZones.countdownSet && pointInRect(coords, controlZones.countdownSet)) {
+          hover = "countdownSet";
+        } else if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
+          hover = "countdownClear";
+        }
+      } else {
+        if (controlZones.start && pointInRect(coords, controlZones.start)) {
+          hover = "start";
+        } else if (controlZones.clear && pointInRect(coords, controlZones.clear)) {
+          hover = "clear";
+        }
       }
     }
     state.hoverTarget = hover;
