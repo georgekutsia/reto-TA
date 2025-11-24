@@ -1,25 +1,41 @@
-﻿# Reto Tecnico - Stopwatch
+# Reto Técnico – Stopwatch & Countdown
 
-Cronometro estilo Online Stopwatch construido unicamente con HTML, CSS y JavaScript como solucion al reto Tecnico Teaching Assistant AI4Devs.
+Replica funcional de la interfaz “Online Stopwatch” construida únicamente con **HTML + CSS + JavaScript**. Incluye el cronómetro clásico con laps y una pantalla tipo canvas que reproduce los modos *Stopwatch* y *Countdown* con transiciones animadas.
 
-## Caracteristicas
+---
 
-- Visual estilo LCD con horas, minutos, segundos y centesimas.
-- Boton de inicio/detencion con feedback sonoro opcional.
-- Registro de laps con diferencia y tiempo total.
-- Reset inmediato, limpieza de laps y modo pantalla completa.
-- Diseno responsive y accesible.
-- Panel lateral con tres vistas: Replica minima, Intento 1 (cronometro avanzado) y Replica completa con la UI tipo Online Stopwatch.
+## Características
+
+### Panel clásico
+- Display LCD con horas/minutos/segundos/centésimas.
+- Botón Start/Pause/Reset, fullscreen y registro de laps con diferencias acumuladas.
+- Toggle para activar/desactivar el beep al iniciar/detener.
+
+### Panel canvas (clon Online-Stopwatch)
+- Canvas responsivo con animación entre tarjetas (Stopwatch ↔ Countdown).
+- Stopwatch canvas: flechas animadas, transición horizontal, botones Start/Pause/Continue/Clear.
+- Countdown canvas: keypad numérico + soporte de teclado (0‑9, Backspace, Enter), botón Set para fijar el tiempo y controles Start/Pause/Continue/Clear para la cuenta regresiva.
+- Barra inferior con botón Back integrado y cursor *pointer* en todos los elementos interactivos.
+
+---
 
 ## Requisitos
 
-- Navegador moderno (Chromium, Firefox, Safari o Edge).  
-No se requiere instalacion adicional ni servidor.
+- Navegador moderno (Chromium, Firefox, Safari, Edge).
+- No se requiere servidor ni dependencias adicionales.
 
-## Como ejecutar
+---
 
-1. Clona el repositorio y entra a la carpeta del proyecto.
-2. Abre `index.html` directamente en tu navegador o usa la extension "Live Server" en VS Code para recarga automatica.
+## Instalación / Ejecución
+
+1. Clona el repositorio.
+   ```bash
+   git clone https://github.com/<tu-usuario>/reto-TA.git
+   cd reto-TA
+   ```
+2. Abre el proyecto:
+   - Doble clic sobre `index.html`, **o**
+   - Usa Live Server (VS Code) para recarga automática.
 
 ```
 # Windows
@@ -32,21 +48,36 @@ open index.html
 xdg-open index.html
 ```
 
-## Estructura
+### Atajos útiles
+- **Countdown**: teclas numéricas rellenan el display de derecha a izquierda; `Backspace/Delete` borra; `Enter` equivale al botón **Set**; una vez fijado el tiempo `Enter` inicia/pausa la cuenta.
+- **Stopwatch canvas**: clic en flechas centrales → animación al modo correspondiente; Back vuelve e interrumpe cualquier conteo.
+
+---
+
+## Estructura del proyecto
 
 ```
-index.html  # Layout principal del cronometro
-styles.css  # Estilos y temas
-script.js   # Logica del cronometro y laps
-IA-USO.md   # Registro de prompts y aprendizajes
+index.html   # Layout principal y vistas
+styles.css   # Estilos globales
+canvas.css   # Estilos específicos para el canvas replica
+script.js    # Lógica del cronómetro, canvas y countdown
+IA-USO.md    # Uso de IA: prompts, explicación y reflexión
+README.md    # Este documento
+public/      # Recursos (flechas, etc.)
 ```
 
-## Documentacion de IA
+---
 
-Consulta `IA-USO.md` para conocer los prompts utilizados, decisiones tomadas con ayuda de IA y reflexiones sobre el proceso.
+## Detalles para revisión
 
-## Proximos pasos sugeridos
+- El proyecto se sirve solo con archivos estáticos (HTML/CSS/JS).
+- `script.js` separa claramente lógica DOM vs. canvas (`initAdvancedStopwatch`, `initCanvasStage`, etc.).
+- `IA-USO.md` documenta los prompts, decisiones apoyadas en IA y aprendizajes.
 
-- Anadir persistencia en localStorage para recordar el ultimo estado.
-- Incluir sonidos personalizables y temas adicionales.
-- Publicar el proyecto en GitHub Pages para compartirlo facilmente.
+---
+
+## Próximos pasos sugeridos
+
+- Añadir alarmas/sonidos configurables cuando termina el countdown.
+- Persistir el último estado en `localStorage`.
+- Desplegar en GitHub Pages para facilitar la demo pública.

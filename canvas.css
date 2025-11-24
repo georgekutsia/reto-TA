@@ -5,7 +5,7 @@
 .os-canvas {
   border-radius: 0;
   overflow: hidden;
-  background: var(--clr-white-soft);
+  background: var(--clr-white);
 }
 
 .canvas-header {
@@ -15,7 +15,6 @@
   text-align: center;
   font-size: 2rem;
   padding: 0.9rem 1rem;
-  width: 50%;
   margin: auto;
 }
 
@@ -36,7 +35,6 @@
   width: 100%;
   height: auto;
   aspect-ratio: 1100 / 640;
-  background: var(--clr-white);
   border-radius: 0;
   border: none;
 }

@@ -396,7 +396,7 @@ function initCanvasStage() {
       const shift = state.width * 0.55;
       const dir = state.anim.direction || 1;
       if (state.anim.type === "toOptions") {
-        drawHomePanels(1 - progress, { translateX: progress * shift * dir });
+    drawHomePanels(1 - progress, { translateX: progress * shift * dir });
         drawOptionsPanels(state.anim.selection, progress, { translateX: -(1 - progress) * shift * dir });
       } else if (state.anim.type === "toHome") {
         drawOptionsPanels(state.selection, 1 - progress, { translateX: -progress * shift * dir });
@@ -472,14 +472,31 @@ function initCanvasStage() {
     ctx.globalAlpha = alpha;
     applyTransform(transform);
     drawSplitBackground();
-    drawHomePanel(paddingX, y, panelWidth, panelHeight, "Stopwatch", images.stopwatch);
-    drawHomePanel(state.width - panelWidth - paddingX, y, panelWidth, panelHeight, "Countdown", images.countdown);
+    const hoverMode = state.hoverTarget;
+    drawHomePanel(
+      paddingX,
+      y,
+      panelWidth,
+      panelHeight,
+      "Stopwatch",
+      images.stopwatch,
+      hoverMode === "stopwatch"
+    );
+    drawHomePanel(
+      state.width - panelWidth - paddingX,
+      y,
+      panelWidth,
+      panelHeight,
+      "Countdown",
+      images.countdown,
+      hoverMode === "countdown"
+    );
     ctx.restore();
   }
 
-  function drawHomePanel(x, y, width, height, label, image) {
+  function drawHomePanel(x, y, width, height, label, image, isHovered) {
     ctx.save();
-    ctx.fillStyle = "rgba(255,255,255,0.96)";
+    ctx.fillStyle = isHovered ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.96)";
     drawRoundedRect(x, y, width, height, 30);
     ctx.fill();
 
