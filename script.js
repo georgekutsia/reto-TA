@@ -323,6 +323,9 @@ function initCanvasStage() {
   const countdownDigitZones = [];
 
   const dpr = window.devicePixelRatio || 1;
+  const rootStyle = getComputedStyle(document.documentElement);
+
+  const cssColor = (name) => rootStyle.getPropertyValue(name).trim() || name;
 
   function createImage(src) {
     const img = new Image();
@@ -449,11 +452,7 @@ function initCanvasStage() {
     ctx.rect(0, topLimit, state.width, fillHeight);
     ctx.clip();
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, topLimit, dividerX, fillHeight);
-    ctx.fillStyle = "#f1f9f1";
-    ctx.fillRect(dividerX, topLimit, state.width - dividerX, fillHeight);
-    ctx.fillStyle = "rgba(0,0,0,0.05)";
-    ctx.fillRect(dividerX - dividerWidth / 2, topLimit, dividerWidth, fillHeight);
+    ctx.fillRect(0, topLimit, state.width, fillHeight);
     ctx.restore();
   }
 
@@ -474,7 +473,7 @@ function initCanvasStage() {
     drawSplitBackground();
     const hoverMode = state.hoverTarget;
     drawHomePanel(
-      paddingX,
+      0,
       y,
       panelWidth,
       panelHeight,
@@ -483,7 +482,7 @@ function initCanvasStage() {
       hoverMode === "stopwatch"
     );
     drawHomePanel(
-      state.width - panelWidth - paddingX,
+      panelWidth + 5,
       y,
       panelWidth,
       panelHeight,
@@ -496,9 +495,8 @@ function initCanvasStage() {
 
   function drawHomePanel(x, y, width, height, label, image, isHovered) {
     ctx.save();
-    ctx.fillStyle = isHovered ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.96)";
-    drawRoundedRect(x, y, width, height, 30);
-    ctx.fill();
+    ctx.fillStyle = isHovered ? "rgba(148,163,184,0.15)" : "rgba(255,255,255,0.96)";
+    ctx.fillRect(x, y, width, height);
 
     ctx.fillStyle = "#101522";
     ctx.font = `600 ${width * 0.12}px Arial`;
@@ -634,20 +632,49 @@ function initCanvasStage() {
     labels.forEach((label, index) => {
       const x = startX + index * (width + gap);
       const isAction = label === "Set" || label === "Clear";
-      const color = label === "Clear" ? "#c4c4c4" : "#0ed946";
-      drawCountdownButton(x, y, width, height, label, color);
+      let gradientColors;
+      if (label === "Set") {
+        gradientColors = [cssColor("--clr-cyan"), cssColor("--clr-indigo")];
+      } else if (label === "Clear") {
+        gradientColors = [cssColor("--clr-slate"), cssColor("--clr-silver-dark")];
+      } else {
+        gradientColors = [cssColor("--clr-green-glow"), cssColor("--clr-green-mid")];
+      }
+      const hoverId =
+        label === "Set"
+          ? "countdownSet"
+          : label === "Clear"
+          ? "countdownClear"
+          : `countdownDigit-${label}`;
+      const isHovered = state.hoverTarget === hoverId;
+      drawCountdownButton(x, y, width, height, label, gradientColors, isHovered);
       if (isAction) {
         const zoneKey = label === "Set" ? "countdownSet" : "countdownClear";
         controlZones[zoneKey] = { x, y, width, height };
       } else {
-        countdownDigitZones.push({ x, y, width, height, value: label });
+        countdownDigitZones.push({
+          x,
+          y,
+          width,
+          height,
+          value: label,
+          id: `countdownDigit-${label}`,
+        });
       }
     });
   }
 
-  function drawCountdownButton(x, y, width, height, label, color) {
+  function drawCountdownButton(x, y, width, height, label, gradientColors, isHovered) {
     ctx.save();
-    ctx.fillStyle = color;
+    const gradient = ctx.createLinearGradient(x, y, x, y + height);
+    if (isHovered) {
+      gradient.addColorStop(0, gradientColors[1]);
+      gradient.addColorStop(1, gradientColors[0]);
+    } else {
+      gradient.addColorStop(0, gradientColors[0]);
+      gradient.addColorStop(1, gradientColors[1]);
+    }
+    ctx.fillStyle = gradient;
     ctx.strokeStyle = "#1a1a1a";
     ctx.lineWidth = Math.max(3, height * 0.08);
     drawRoundedRect(x, y, width, height, 20);
@@ -745,8 +772,8 @@ function initCanvasStage() {
   }
 
   function handleHomeClick(coords) {
-    const targets = getArrowTargets();
-    const hit = targets.find((target) => pointInRect(coords, target));
+    const panels = getHomePanels();
+    const hit = panels.find((panel) => pointInRect(coords, panel));
     if (hit) {
       const direction = hit.mode === "countdown" ? -1 : 1;
       startAnimation("toOptions", hit.mode, direction);
@@ -804,16 +831,10 @@ function initCanvasStage() {
 
   function getHomePanels() {
     const metrics = getPanelMetrics();
-    const { panelWidth, panelHeight, paddingX, y } = metrics;
+    const { panelWidth, panelHeight, y } = metrics;
     return [
-      { x: paddingX, y, width: panelWidth, height: panelHeight, mode: "stopwatch" },
-      {
-        x: state.width - panelWidth - paddingX,
-        y,
-        width: panelWidth,
-        height: panelHeight,
-        mode: "countdown",
-      },
+      { x: 0, y, width: panelWidth, height: panelHeight, mode: "stopwatch" },
+      { x: panelWidth + 5, y, width: panelWidth, height: panelHeight, mode: "countdown" },
     ];
   }
 
@@ -824,25 +845,6 @@ function initCanvasStage() {
     const x = 0;
     const y = state.height - bannerHeight;
     return { x, y, width, height };
-  }
-
-  function getArrowTargets() {
-    const panels = getHomePanels();
-    return panels
-      .map((panel) => {
-        const image = panel.mode === "stopwatch" ? images.stopwatch : images.countdown;
-        if (!image || !image.complete) return null;
-        const imgHeight = panel.height * 0.66;
-        const imgWidth = (image.width / image.height) * imgHeight;
-        return {
-          mode: panel.mode,
-          x: panel.x + (panel.width - imgWidth) / 2,
-          y: panel.y + panel.height * 0.3,
-          width: imgWidth,
-          height: imgHeight,
-        };
-      })
-      .filter(Boolean);
   }
 
   function pointInRect(point, rect) {
@@ -860,17 +862,12 @@ function initCanvasStage() {
   }
 
   function getPanelMetrics() {
-    const panelWidth = state.width * 0.46;
-    const desiredHeight = state.height * 0.78;
-    const paddingX = state.width * 0.06;
-    const margin = state.height * 0.035;
     const bannerHeight = getBannerHeight();
-    const topSafe = bannerHeight + margin;
-    const bottomSafe = state.height - bannerHeight - margin;
-    const maxPanelHeight = Math.max(bottomSafe - topSafe, 0);
-    const panelHeight = Math.min(desiredHeight, maxPanelHeight);
-    const y = topSafe + (maxPanelHeight - panelHeight) / 2;
-    return { panelWidth, panelHeight, paddingX, y };
+    const gap = 5;
+    const panelWidth = (state.width - gap) / 2;
+    const panelHeight = state.height - bannerHeight * 2;
+    const y = bannerHeight;
+    return { panelWidth, panelHeight, y };
   }
 
   function getBannerHeight() {
@@ -1058,8 +1055,8 @@ function initCanvasStage() {
     const coords = getCanvasCoordinates(evt);
     let hover = null;
     if (state.view === "home") {
-      const target = getArrowTargets().find((t) => pointInRect(coords, t));
-      if (target) hover = target.mode;
+      const panel = getHomePanels().find((t) => pointInRect(coords, t));
+      if (panel) hover = panel.mode;
     } else if (state.view === "options") {
       if (pointInRect(coords, getBackBarBounds())) {
         hover = "back";
@@ -1069,8 +1066,11 @@ function initCanvasStage() {
             hover = "countdownSet";
           } else if (controlZones.countdownClear && pointInRect(coords, controlZones.countdownClear)) {
             hover = "countdownClear";
-          } else if (countdownDigitZones.some((zone) => pointInRect(coords, zone))) {
-            hover = "countdownDigit";
+          } else {
+            const digitZone = countdownDigitZones.find((zone) => pointInRect(coords, zone));
+            if (digitZone) {
+              hover = digitZone.id;
+            }
           }
         } else {
           if (controlZones.start && pointInRect(coords, controlZones.start)) {

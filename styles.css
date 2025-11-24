@@ -490,8 +490,7 @@ body {
 }
 
 .icon-btn i,
-.os-cta-row .pill i,
-.logo-icon i {
+.os-cta-row .pill i {
   color: var(--clr-white);
   font-size: 2.1rem;
 }

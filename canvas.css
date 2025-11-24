@@ -8,16 +8,6 @@
   background: var(--clr-white);
 }
 
-.canvas-header {
-  background: var(--clr-indigo);
-  color: var(--clr-white);
-  letter-spacing: 0.25em;
-  text-align: center;
-  font-size: 2rem;
-  padding: 0.9rem 1rem;
-  margin: auto;
-}
-
 .canvas-stage {
   padding: 2rem 1rem;
   display: flex;
