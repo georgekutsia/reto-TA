@@ -1,57 +1,105 @@
 # IA-USO
 
-![Referencia](public/img-mg/Img1.png)
 
-Registro del uso de inteligencia artificial durante el desarrollo del reto Teaching Assistant ñ Online Stopwatch. El documento sirve como bit·cora y guÌa para entender cÛmo la IA ayudÛ a levantar el canvas, el cronÛmetro cl·sico y la documentaciÛn.
+Registro del uso de inteligencia artificial durante el desarrollo del reto Teaching Assistant ‚Äì Online Stopwatch. El documento funciona como bit√°cora: resume c√≥mo se apoy√≥ la IA para construir el canvas, el cron√≥metro cl√°sico y la documentaci√≥n final.
 
 ---
 
 ## Modelos empleados
 
-- **ChatGPT (Codex CLI ∑ GPT-4.1/4.1-mini)**  
-  Asistente principal para idear la estructura del canvas, ajustar animaciones, generar popups multimedia y redactar documentaciÛn.
-- **Apify + GPT extractor (referencia inicial)**  
-  Se consultÛ una vez al inicio para obtener un snippet del sitio original; sirviÛ como referencia del layout base, pero se reescribiÛ por completo al carecer de laps/milisegundos.
+- **ChatGPT (Codex CLI ¬∑ GPT‚Äë4.1 / GPT‚Äë4.1‚Äëmini)**  
+  Asistente principal. Se utiliz√≥ para idear la estructura del canvas, proponer animaciones, sugerir refactors y redactar los entregables.
+- **Apify + GPT extractor**  
+  Referencia puntual del DOM/CSS del sitio original. El snippet result√≥ incompleto (sin laps ni milisegundos), as√≠ que el c√≥digo se reescribi√≥ manualmente, pero sirvi√≥ para captar la jerarqu√≠a base.
+- **NotebookLM (Google)**  
+  Herramienta externa usada para generar borradores de texto (README, descripciones del proyecto) y para esbozar el guion del podcast/video antes de integrarlo en los popups.
 
 ---
 
 ## Prompts / hitos destacados
 
-1. **ìvamos a empezar a crear el canvasÖ est· en el centroî**  
-   Resultado: estructura `canvas-shell`, importaciÛn de flechas y render inicial con dos paneles (Stopwatch/Countdown).
-2. **ìhaz que aparezca cursor pointer cuando hago hover encima de las flechasî**  
-   Resultado: `getHomePanels()` + listeners `mousemove` que actualizan `canvas.style.cursor` seg˙n la secciÛn.
-3. **ìcuando pulso la flecha de stopwatch quiero que parezca que rotaî**  
-   Resultado: animaciÛn de rotaciÛn + transiciÛn; luego se simplificÛ a desplazamiento horizontal cuando se pidiÛ un efecto sÛlo en eje X.
-4. **ìcuando pulso Start debe comenzar la cuentaî**  
-   Resultado: `state.timer`, `handleStartButton`, `getTimerSnapshot`, botones Start/Pause/Continue/Clear y registro de laps dentro del canvas.
-5. **ìel Countdown necesita el mismo display y n˙meros debajoî**  
-   Resultado: keypad numÈrico con degradados, soporte de teclado (`0-9`, `Backspace`, `Enter`), estados `input/ready/running` y botones Set/Clear.
-6. **ìcuando termina la cuenta atr·s quiero alarmaî**  
-   Resultado: uso de `public/audio/alarm-sound.mp3`, flags `alertActive/alertVisible`, parpadeo cada 0.5?s y sÛlo botÛn Clear disponible durante la alarma.
-7. **ìRÈpl. mÌnima debe cargar sÛlo el canvasî**  
-   Resultado: hosts `data-canvas-host="full/minimal"`, clase `body.canvas-only-mode` y lÛgica para mover el `canvas` entre vistas.
+### 60 prompts en CODEX; 
+### De ellos, ‚âà22 fueron ‚Äúrelevantes‚Äù (introdujeron o modificaron funcionalidad mayor: canvas, countdown l√≥gico, popups, alarma, etc.) y 38 fueron ajustes menores (colores, bordes, tooltips, tama√±o de botones‚Ä¶). 
+### En cuanto al √°mbito t√©cnico, 18 peticiones centradas s√≥lo en CSS, 9 s√≥lo en HTML y 33 con efectos directos en JavaScript (animaciones, estado, audio/video, canvas).
 
-*(El resto de prompts fueron ajustes finos: tooltips personalizados, popups multimedia, animaciones premium, etc.)*
+### Pompts Destacados con CODEX
+
+1. **Tras inicia el proyecto, le pas√© el reto t√©cnico a CODEX y le ped√≠ lo siguiente:**  
+   ‚Äì Tengo esta prueba t√©cnica que resolver. no estoy seguro de si me piden que haga solamente la parte de la pagina que simplemente empieza la cuenta y se para, o todo lo que hay en la p√°gina, que es muchisimo. SI puedes, revisa la p√°gina web. Por otro lado, necesito que me digas alguna IA que sirva de Web Scrapper para coger todo el c√≥digo de la p√°gina web.
+![Referencia](public\img-mg\Prompt1.png)
+2. **Como no consegu√≠ suficiente informaci√≥n con scarping, decid√≠ hacerlo pasando im√°genes y pidiendo poco a poco ajustar ciertos detalles a CODEX. Tras crear un primer intento de contador:**
+
+![Referencia](public\img-mg\Prompt2.png)
+
+3. **Le ped√≠ crear botones para mostrar distintas partes o complejidades del proyecto.**
+![Referencia](public\img-mg\Prompt3.png)
+
+4. **Le pas√© la im√°gen completa de la p√°gina para empezar con el proyecto. Tras eso estuvimos mucho tiempo ajustando, con prompts menores y modificaciones manuales**
+
+![Referencia](public\img-mg\Prompt4.png)
+
+5. **Empec√© con la funcionalidad del Canvas que contendr√≠a el contador**
+
+![Referencia](public\img-mg\Prompt5.png)
+6. **Le ped√≠ corregir su interpretaci√≥n de la im√°gen y del c√≥digo que le hab√≠a pasado anteriormente de inspeccionar la web**
+
+![Referencia](public\img-mg\Prompt6.png)
+
+7. **Creamos un css nuevo para el canvas y empezamos ajustar tanto la l√≥gica como el dise√±o**
+
+![Referencia](public\img-mg\Prompt7.png)
+
+8. **Le empec√© a pasar im√°genes y explicaciones de c√≥mo hacer que cambie entre las opciones, de una pantalla a otra y la posici√≥n.**
+
+![Referencia](public\img-mg\Prompt8.png)
+![Referencia](public\img-mg\Prompt9.png)
+![Referencia](public\img-mg\Prompt10.png)
+![Referencia](public\img-mg\Prompt11.png)
+
+9. **Tras hacer todos los ajustes peque√±os entre medias, pas√© a la funcionalidad de Stopwatch.**
+
+![Referencia](public\img-mg\Prompt12.png)
+![Referencia](public\img-mg\Prompt13.png)
+
+10. **Entre otros prompts peque√±os y probando que todo funciona, pas√© a la parte de Countdown**
+
+![Referencia](public\img-mg\Prompt14.png)
+![Referencia](public\img-mg\Prompt15.png)
+![Referencia](public\img-mg\Prompt16.png)
+![Referencia](public\img-mg\Prompt17.png)
+![Referencia](public\img-mg\Prompt18.png)
+
+### Pompts Destacados con NotebookLM
+
+1. **Primero le pas√© un pdf de los requisitos para la prueba, para darle contexto y despu√©s fui gui√°ndolo para que me devolviera un documento nuevo que pudiera usar tanto para generar el audio y el video como para hacer el README**
+
+![Referencia](public\img-mg\Cod1.png)
+![Referencia](public\img-mg\Cod2.png)
+![Referencia](public\img-mg\Cod3.png)
+
+2. **Le pas√© todo lo recogido en NotebookLM a CODEX para hacer un README y IA-USO mejor estructurado que prob√© en readme.so"
+
+*(Otros prompts cubrieron ajustes finos: tooltips personalizados, popups multimedia, animaciones premium, etc.)*
 
 ---
 
-## CÛmo se integrÛ en el flujo
+## Integraci√≥n en el flujo
 
-- **IdeaciÛn visual**: describÌ las capturas y la IA propuso la estructura (barras azules, keypad, transiciones). Luego ajustÈ manualmente el layout, colores y tipografÌas.
-- **Refactor / DRY**: al solicitar ìusa el mismo cÛdigo para ambos displaysî, surgiÛ el helper `drawTimerDisplay`, evitando duplicaciones en stopwatch/countdown.
-- **DepuraciÛn guiada**: cuando el hover dejÛ de responder en Countdown, la IA detectÛ que el listener sÛlo revisaba `controlZones` del Stopwatch; se extendiÛ la lÛgica inmediatamente.
-- **DocumentaciÛn**: la IA ayudÛ a condensar los requisitos y a redactar `README.md` e `IA-USO.md`, cumpliendo los entregables solicitados.
+- **Ideaci√≥n visual**: describ√≠ las capturas y la IA arm√≥ la base (barras azules, keypad, paneles). Despu√©s ajust√© manualmente tama√±os, colores y tipograf√≠as para que coincidieran con la referencia.
+- **Refactor y consistencia**: al pedir ‚Äúmismo c√≥digo para ambos displays‚Äù surgi√≥ `drawTimerDisplay`, evitando duplicaciones en stopwatch/countdown.
+- **Depuraci√≥n guiada**: cuando el hover dej√≥ de reaccionar en Countdown, la IA se√±al√≥ que el listener s√≥lo revisaba `controlZones` del Stopwatch, lo cual permiti√≥ corregirlo al momento.
+- **Documentaci√≥n**: la IA ayud√≥ a condensar los requisitos en `README.md` e `IA-USO.md`, asegurando que los entregables cumplieran los criterios del reto.
 
 ---
 
-## ReflexiÛn personal
+## Reflexi√≥n personal
 
-- **QuÈ ayudÛ**: usar la IA como ìpair programmerî visual. Pedirle transiciones especÌficas o rÈplicas a partir de capturas acelerÛ las iteraciones y reforzÛ la coherencia entre vistas.
-- **QuÈ no ayudÛ**: los primeros prompts a Apify fueron muy generales; devolvieron un snippet sin lÛgica real. AprendÌ a pedir secciones concretas (botones, laps, milisegundos) para evitar retrabajo.
+- **Qu√© ayud√≥**: tratar a la IA como ‚Äúpair programmer‚Äù visual aceler√≥ las iteraciones (transiciones, popups, animaciones). Tambi√©n mantuvo coherencia entre displays cuando se pidi√≥ expl√≠citamente.
+- **Qu√© no ayud√≥**: los primeros prompts a Apify eran demasiado generales; el snippet resultante no conten√≠a la l√≥gica necesaria. A partir de ah√≠ solicit√© componentes concretos para evitar retrabajo.
 - **Aprendizajes**:
-  - Mantener un estado explÌcito (`state.timer`, `state.countdown`, flags de alarma) simplifica pedir cambios incrementales a la IA sin romper otros flujos.
-  - Conviene desactivar tooltips/overlays globales cuando se trabaja con canvas interactivo.
-  - Documentar cada intervenciÛn desde el inicio facilita preparar este archivo sin rehacer todo el historial.
+  - Mantener un estado expl√≠cito (`state.timer`, `state.countdown`, flags de alarma) facilita pedir cambios incrementales sin romper otras partes.
+  - Conviene desactivar overlays/tooltip globales cuando se trabaja con controles dentro del canvas.
+  - Documentar cada intervenci√≥n desde el inicio facilita componer este archivo sin revisar todo el historial.
+  -Hacer commits cada poco para evitar que un prompt mal planteado resquebraje todo lo trabajado y no se pueda volver atr√°s
 
-En resumen, la IA funcionÛ como un copiloto enfocado en UI/UX y documentaciÛn; yo validÈ la funcionalidad, limpiÈ el cÛdigo y asegurÈ que el resultado coincidiera con la maqueta real.
+En resumen, la IA se comport√≥ como un copiloto centrado en UI/UX y documentaci√≥n, mientras yo valid√© la funcionalidad, limpi√© el c√≥digo y asegur√© que la r√©plica coincidiera visualmente con la maqueta real.
