@@ -939,7 +939,9 @@ body {
 .view-switcher button[data-view-target="replica-minima"],
 .view-switcher button[data-view-target="replica-completa"],
 #podcastTrigger,
-#videoTrigger {
+#videoTrigger,
+[data-doc-trigger="readme"],
+[data-doc-trigger="ia-uso"] {
   position: relative;
 }
 
@@ -952,9 +954,9 @@ body {
 [data-doc-trigger="ia-uso"]::after {
   content: "";
   position: absolute;
-  left: 0;
+  left: 50%;
   top: 50%;
-  transform: translate(calc(-100% - 12px), -50%);
+  transform: translate(-50%, -50%);
   font-size: 18px;
   color: var(--clr-white);
   background: rgba(var(--rgb-midnight), 0.92);
@@ -1012,16 +1014,15 @@ body {
 }
 .view-switcher__extras {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .view-switcher__extras button {
   background: var(--clr-indigo);
   color: var(--clr-white);
   border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 999px;
-  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
   cursor: pointer;
   flex: 1;
 }
@@ -1031,7 +1032,7 @@ body {
 }
 
 .view-switcher__extras--docs {
-  margin-top: 0.35rem;
+  margin-top: 0.15rem;
 }
 
 .view-switcher__extras--docs button {
@@ -1389,6 +1390,7 @@ i{
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 
 .premiumShow .prem {
   position: absolute;
