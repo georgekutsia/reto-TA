@@ -28,18 +28,14 @@
   --clr-green-mid: #51d86b;
   --clr-green-deep: #26a235;
   --clr-green-dark: #21af3a;
-  --clr-green-icon: #29b15f;
   --clr-green-glow: #8ef473;
   --clr-orange: #ff9900;
   --clr-gold-deep: #996600;
   --clr-gold-light: #ffdf52;
   --clr-gold-accent: #eab308;
-  --clr-gold-bright: #f9db00;
-  --clr-gold-shadow: #d1b800;
   --clr-magenta: #c800f2;
   --clr-pink: #a20051;
   --clr-burgundy: #2a0b0b;
-  --clr-chocolate: #b45309;
   --rgb-midnight: 15, 23, 42;
   --rgb-space: 2, 6, 23;
   --rgb-white: 255, 255, 255;
@@ -266,7 +262,7 @@ body {
 }
 
 .circle.green {
-  background: var(--clr-green-icon);
+  background: var(--clr-green);
 }
 
 .circle.gray {
@@ -1384,7 +1380,7 @@ i{
   border: 0;
   border-radius: 12px;
   padding: 0.5rem 1.5rem 0.5rem 0.5rem;
-  background: linear-gradient(180deg, var(--clr-gold-bright) 0%, var(--clr-gold-shadow) 100%);
+  background: linear-gradient(180deg, var(--clr-gold-light) 0%, var(--clr-gold-accent) 100%);
   color: var(--clr-midnight);
   font-weight: 700;
   display: inline-flex;
@@ -1437,7 +1433,7 @@ i{
 }
 
 .premiumShow .premium-text i {
-  color: var(--clr-chocolate);
+  color: var(--clr-orange);
 }
 
 .premiumShow:hover .premium-text {
