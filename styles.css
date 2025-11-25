@@ -946,6 +946,26 @@ body {
   border-color: var(--accent);
 }
 
+.view-switcher__extras {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-switcher__extras button {
+  background: var(--clr-indigo);
+  color: var(--clr-white);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+}
+
+.view-switcher__extras button:hover {
+  background: var(--clr-blue-cta);
+}
+
 @keyframes fade {
   from {
     opacity: 0;
