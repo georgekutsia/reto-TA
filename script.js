@@ -15,6 +15,7 @@ initAdvancedStopwatch(advancedRoot);
 initCanvasStage();
 initPodcastPlayer();
 initVideoPlayer();
+initDocsViewer();
 
 function initViewSwitcher(defaultView) {
   const views = document.querySelectorAll("[data-view]");
@@ -1405,6 +1406,58 @@ function initVideoPlayer() {
 
   updateTimeUI();
   updateFullscreenLabel();
+}
+
+function initDocsViewer() {
+  const popup = document.getElementById("docsPopup");
+  const triggers = document.querySelectorAll("[data-doc-trigger]");
+  if (!popup || !triggers.length) return;
+
+  const closeBtn = popup.querySelector('[data-action="close"]');
+  const titleEl = popup.querySelector(".docs-popup__title");
+  const articles = popup.querySelectorAll("[data-doc-article]");
+
+  const setActiveDoc = (docId) => {
+    articles.forEach((article) => {
+      const match = article.dataset.docArticle === docId;
+      article.classList.toggle("is-active", match);
+    });
+    popup.dataset.activeDoc = docId;
+    if (titleEl) {
+      titleEl.textContent = docId === "ia-uso" ? "IA-USO" : "README";
+    }
+  };
+
+  const openPopup = (docId) => {
+    popup.classList.add("is-visible");
+    popup.setAttribute("aria-hidden", "false");
+    setActiveDoc(docId);
+  };
+
+  const closePopup = () => {
+    popup.classList.remove("is-visible");
+    popup.setAttribute("aria-hidden", "true");
+  };
+
+  triggers.forEach((button) => {
+    button.addEventListener("click", () => {
+      const docId = button.dataset.docTrigger;
+      const isVisible = popup.classList.contains("is-visible");
+      const currentDoc = popup.dataset.activeDoc;
+      if (isVisible && currentDoc === docId) {
+        closePopup();
+      } else {
+        openPopup(docId);
+      }
+    });
+  });
+
+  closeBtn?.addEventListener("click", closePopup);
+  popup.addEventListener("click", (evt) => {
+    if (evt.target === popup) {
+      closePopup();
+    }
+  });
 }
 
 

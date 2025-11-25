@@ -138,7 +138,7 @@
 
             <section class="os-banner">
               <div>
-                <p>Everybody needs a stopwatch at some point — and there's never one around!</p>
+                <p>Everybody needs a stopwatch at some point  and there's never one around!</p>
                 <p>
                   Well... Now there is! Online Stopwatch. 
                 </p>
@@ -230,6 +230,10 @@
           <button type="button" id="podcastTrigger">Podcast</button>
           <button type="button" id="videoTrigger">Video</button>
         </div>
+        <div class="view-switcher__extras view-switcher__extras--docs">
+          <button type="button" data-doc-trigger="readme">Readme</button>
+          <button type="button" data-doc-trigger="ia-uso">IA-USO</button>
+        </div>
       </aside>
 
       <section class="audio-popup" id="podcastPopup" aria-hidden="true">
@@ -296,8 +300,150 @@
           </label>
         </div>
       </section>
+
+      <section class="docs-popup" id="docsPopup" aria-hidden="true" data-active-doc="">
+        <header class="docs-popup__header">
+          <div>
+            <h2 class="eyebrow">Documentación</h2>
+            <h3 class="docs-popup__title">README</h3>
+          </div>
+          <button type="button" class="docs-popup__close" data-action="close">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Cerrar</span>
+          </button>
+        </header>
+        <div class="docs-popup__body">
+          <article class="docs-popup__article is-active" data-doc-article="readme">
+            <h3>Reto Técnico  Réplica completa de Online Stopwatch</h5>
+            <p>
+              Proyecto estático que recrea la experiencia de <strong>online-stopwatch.com</strong> usando únicamente HTML, CSS y JavaScript.
+              Incluye selector de vistas, cronómetro clásico y un canvas que replica los paneles Stopwatch/Countdown con animaciones.
+            </p>
+            <h3>Resumen funcional</h4>
+            <ul>
+              <li>Selector lateral con Intento 1, Réplica mínima y Réplica completa + botones Podcast/Video/Docs.</li>
+              <li>Intento 1: display LCD, botones Iniciar/Lap/Reiniciar/Fullscreen/Limpiar y registro de laps.</li>
+              <li>Répl. mínima: modo canvas-only, fondo blanco, canvas centrado.</li>
+              <li>Répl. completa: header/nav premium, canvas responsivo, botón Back integrado, keypad en countdown.</li>
+            </ul>
+            <h3>Countdown canvas</h3>
+            <p>
+              Soporta teclado (0-9, Backspace, Enter), botones Set/Clear y manejo de estados input/ready/running.
+              Al llegar a 0, el display parpadea cada 0.5·s y suena <code>public/audio/alarm-sound.mp3</code> hasta presionar Clear.
+            </p>
+            <h3>Extras multimedia</h3>
+            <ul>
+              <li>Popup Podcast con reproducción, stop y control de velocidad.</li>
+              <li>Popup Video con barra de progreso, botón pantalla completa y opción Aumentar/Reducir.</li>
+            </ul>
+            <h3>Estructura rápida</h3>
+            <pre><code>index.html    Vistas, switcher y popups
+styles.css    Estilos globales
+canvas.css    Layout del canvas
+script.js     Lógica de cronómetros, canvas, audio/video
+public/       Flechas, audio, video</code></pre>
+          </article>
+          <article class="docs-popup__article" data-doc-article="ia-uso">
+            <h3>IA-USO</h3>
+            <p>Registro del uso de IA durante el reto Teaching Assistant  Online Stopwatch.</p>
+            <p>
+              <strong>Resumen cuantitativo:</strong> 60 prompts en Codex · 22 relevantes · 38 ajustes menores · 18 centrados en CSS · 9 en HTML · 33 en JavaScript.
+            </p>
+            <h4>Modelos empleados</h4>
+            <ul>
+              <li><strong>ChatGPT (Codex CLI · GPT-4.1/4.1-mini)</strong>: ideación del canvas, animaciones, refactors y documentación.</li>
+              <li><strong>Apify + GPT extractor</strong>: referencia puntual del DOM/CSS original; se reescribió toda la lógica manualmente.</li>
+              <li><strong>NotebookLM</strong>: generación de borradores para README, descripciones y guion de podcast/video.</li>
+            </ul>
+            <h4>Prompts destacados con Codex</h4>
+            <ol>
+              <li>
+                Tras iniciar el proyecto le pedí revisar el reto, sugerir el alcance y recomendar un web scrapper.
+                <img src="public/img-mg/Prompt1.png" alt="Prompt 1" />
+              </li>
+              <li>
+                Al no lograr suficiente scraping, comencé a pasar imágenes y ajustes incrementales del contador.
+                <img src="public/img-mg/Prompt2.png" alt="Prompt 2" />
+              </li>
+              <li>
+                Solicité botones para mostrar distintas complejidades del proyecto.
+                <img src="public/img-mg/Prompt3.png" alt="Prompt 3" />
+              </li>
+              <li>
+                Compartí la captura completa de la web para replicarla con múltiples iteraciones manuales.
+                <img src="public/img-mg/Prompt4.png" alt="Prompt 4" />
+              </li>
+              <li>
+                Arranqué la funcionalidad del canvas del cronómetro.
+                <img src="public/img-mg/Prompt5.png" alt="Prompt 5" />
+              </li>
+              <li>
+                Ajusté la interpretación del código obtenido vía inspección.
+                <img src="public/img-mg/Prompt6.png" alt="Prompt 6" />
+              </li>
+              <li>
+                Creamos un CSS nuevo para el canvas y pulimos lógica/diseño.
+                <img src="public/img-mg/Prompt7.png" alt="Prompt 7" />
+              </li>
+              <li>
+                Fase de transición entre pantallas (Stopwatch/Countdown) basada en imágenes explicativas.
+                <img src="public/img-mg/Prompt8.png" alt="Prompt 8" />
+                <img src="public/img-mg/Prompt9.png" alt="Prompt 9" />
+                <img src="public/img-mg/Prompt10.png" alt="Prompt 10" />
+                <img src="public/img-mg/Prompt11.png" alt="Prompt 11" />
+              </li>
+              <li>
+                Funcionalidad de Stopwatch dentro del canvas.
+                <img src="public/img-mg/Prompt12.png" alt="Prompt 12" />
+                <img src="public/img-mg/Prompt13.png" alt="Prompt 13" />
+              </li>
+              <li>
+                Desarrollo del modo Countdown con teclado, keypad y alarmas.
+                <img src="public/img-mg/Prompt14.png" alt="Prompt 14" />
+                <img src="public/img-mg/Prompt15.png" alt="Prompt 15" />
+                <img src="public/img-mg/Prompt16.png" alt="Prompt 16" />
+                <img src="public/img-mg/Prompt17.png" alt="Prompt 17" />
+                <img src="public/img-mg/Prompt18.png" alt="Prompt 18" />
+              </li>
+            </ol>
+            <h4>Prompts destacados con NotebookLM</h4>
+            <ol>
+              <li>
+                Le pasé el PDF de requisitos para que generara un documento base (audio/video/README).
+                <img src="public/img-mg/Cod1.png" alt="Cod 1" />
+                <img src="public/img-mg/Cod2.png" alt="Cod 2" />
+                <img src="public/img-mg/Cod3.png" alt="Cod 3" />
+              </li>
+              <li>
+                Reutilicé esos textos en Codex para estructurar README e IA-USO, y los validé en readme.so.
+              </li>
+            </ol>
+            <h4>Integración en el flujo</h4>
+            <ul>
+              <li><strong>Ideación visual:</strong> describí las capturas y la IA montó la base; luego ajusté manualmente.</li>
+              <li><strong>Refactor y consistencia:</strong> `drawTimerDisplay` surgió del pedido de compartir código entre displays.</li>
+              <li><strong>Depuración:</strong> la IA señaló que el hover fallaba por revisar sólo `controlZones` del Stopwatch.</li>
+              <li><strong>Documentación:</strong> ayudó a condensar requisitos para README e IA-USO.</li>
+            </ul>
+            <h4>Reflexión personal</h4>
+            <ul>
+              <li>La IA como pair programmer visual aceleró transiciones, popups y animaciones.</li>
+              <li>Los prompts iniciales a Apify fueron muy generales; aprendí a pedir componentes concretos.</li>
+              <li>Mantener estados explícitos (`state.timer`, `state.countdown`, alertas) facilitó iteraciones.</li>
+              <li>Desactivé tooltips globales para no interferir con el canvas.</li>
+              <li>Documentar cada intervención y hacer commits frecuentes evitó perder avances.</li>
+            </ul>
+            <p>
+              En conjunto, la IA actuó como copiloto enfocado en UI/UX y documentación, mientras yo validé la funcionalidad final para igualar la maqueta original.
+            </p>
+          </article>
+        </div>
+      </section>
     </main>
 
     <script src="script.js"></script>
   </body>
 </html>
+
+
+

@@ -6,7 +6,6 @@
 Proyecto estático que recrea la experiencia de **online-stopwatch.com** usando exclusivamente _HTML + CSS + JavaScript_. El layout general, los popups de audio/video y el cronómetro clásico conviven con un canvas donde se dibuja todo el UI interactivo (flechas, paneles, keypad, botones animados, etc.).
 
 ---
-!(public\img-mg\Prompt2.png)
 
 
 ## Qué incluye
