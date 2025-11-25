@@ -244,10 +244,75 @@
         <button data-view-target="replica-minima">Replica minima</button>
         <button data-view-target="replica-completa">Replica completa</button>
         <div class="view-switcher__extras">
-          <button type="button">Podcast</button>
-          <button type="button">Video</button>
+          <button type="button" id="podcastTrigger">Podcast</button>
+          <button type="button" id="videoTrigger">Video</button>
         </div>
       </aside>
+
+      <section class="audio-popup" id="podcastPopup" aria-hidden="true">
+        <header class="audio-popup__header">
+          <div>
+            <p class="eyebrow">Reproductor</p>
+            <h4>Podcast</h4>
+          </div>
+          <button type="button" class="audio-popup__close" data-action="close">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Cerrar</span>
+          </button>
+        </header>
+  
+        <audio id="podcastPlayer" preload="none" src="public/audio/Podcast.wav"></audio>
+        <div class="audio-popup__controls">
+          <button type="button" data-action="play">Play</button>
+          <button type="button" data-action="stop">Stop</button>
+          <label>
+            Velocidad
+            <select id="podcastSpeed">
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="video-popup" id="videoPopup" aria-hidden="true">
+        <header class="video-popup__header">
+          <div>
+            <p class="eyebrow">Reproductor</p>
+            <h4>Video</h4>
+          </div>
+          <button type="button" class="video-popup__close" data-action="close">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Cerrar</span>
+          </button>
+        </header>
+        <p class="video-popup__hint">Resume visual del proyecto.</p>
+        <video id="videoPlayer" preload="none" src="public/Video/Resume.mp4"></video>
+        <div class="video-popup__progress">
+          <span id="videoTimeCurrent">00:00</span>
+          <input type="range" id="videoProgress" value="0" min="0" max="100" step="0.1" aria-label="Progreso del video">
+          <span id="videoTimeDuration">00:00</span>
+        </div>
+        <div class="video-popup__controls">
+          <button type="button" data-action="play">Play</button>
+          <button type="button" data-action="stop">Stop</button>
+          <button type="button" data-action="resize">Aumentar</button>
+          <button type="button" data-action="fullscreen">Pantalla completa</button>
+          <label>
+            Velocidad
+            <select id="videoSpeed">
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+          </label>
+        </div>
+      </section>
     </main>
 
     <script src="script.js"></script>

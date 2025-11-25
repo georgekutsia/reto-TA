@@ -9,10 +9,12 @@ if (minimalRoot) {
 
 const advancedRoot = document.querySelector('[data-stopwatch="advanced"]');
 if (advancedRoot) {
-  initAdvancedStopwatch(advancedRoot);
+initAdvancedStopwatch(advancedRoot);
 }
 
 initCanvasStage();
+initPodcastPlayer();
+initVideoPlayer();
 
 function initViewSwitcher(defaultView) {
   const views = document.querySelectorAll("[data-view]");
@@ -323,9 +325,8 @@ function initCanvasStage() {
   const countdownDigitZones = [];
 
   const dpr = window.devicePixelRatio || 1;
-  const rootStyle = getComputedStyle(document.documentElement);
-
-  const cssColor = (name) => rootStyle.getPropertyValue(name).trim() || name;
+  const rootStyles = getComputedStyle(document.documentElement);
+  const cssColor = (token) => rootStyles.getPropertyValue(token).trim() || token;
 
   function createImage(src) {
     const img = new Image();
@@ -1101,6 +1102,223 @@ function initCanvasStage() {
   window.addEventListener("keydown", handleKeydown);
 }
 
+function initPodcastPlayer() {
+  const trigger = document.getElementById("podcastTrigger");
+  const popup = document.getElementById("podcastPopup");
+  const audio = document.getElementById("podcastPlayer");
+  if (!trigger || !popup || !audio) return;
+
+  const closeBtn = popup.querySelector('[data-action="close"]');
+  const playBtn = popup.querySelector('[data-action="play"]');
+  const stopBtn = popup.querySelector('[data-action="stop"]');
+  const speedSelect = popup.querySelector("#podcastSpeed");
+
+  const togglePopup = (forceState) => {
+    const shouldShow =
+      typeof forceState === "boolean" ? forceState : !popup.classList.contains("is-visible");
+    popup.classList.toggle("is-visible", shouldShow);
+    popup.setAttribute("aria-hidden", (!shouldShow).toString());
+    if (!shouldShow) {
+      audio.pause();
+      playBtn.textContent = "Play";
+    }
+  };
+
+  trigger.addEventListener("click", () => {
+    const willShow = !popup.classList.contains("is-visible");
+    togglePopup(willShow);
+    if (willShow) {
+      if (!audio.src) {
+        alert("Aún no se ha asignado un archivo de audio al reproductor (#podcastPlayer).");
+        return;
+      }
+      audio.play().catch(() => {
+        // ignore autoplay errors until user interacts
+      });
+      playBtn.textContent = "Pause";
+    }
+  });
+
+  closeBtn?.addEventListener("click", () => togglePopup(false));
+
+  playBtn?.addEventListener("click", () => {
+    if (!audio.src) {
+      alert("Aún no se ha asignado un archivo de audio al reproductor (#podcastPlayer).");
+      return;
+    }
+    if (audio.paused) {
+      audio.play();
+      playBtn.textContent = "Pause";
+    } else {
+      audio.pause();
+      playBtn.textContent = "Play";
+    }
+  });
+
+  stopBtn?.addEventListener("click", () => {
+    audio.pause();
+    audio.currentTime = 0;
+    playBtn.textContent = "Play";
+  });
+
+  speedSelect?.addEventListener("change", () => {
+    const rate = parseFloat(speedSelect.value);
+    if (!Number.isNaN(rate)) {
+      audio.playbackRate = rate;
+    }
+  });
+
+  audio.addEventListener("ended", () => {
+    playBtn.textContent = "Play";
+  });
+}
+
+function initVideoPlayer() {
+  const trigger = document.getElementById("videoTrigger");
+  const popup = document.getElementById("videoPopup");
+  const video = document.getElementById("videoPlayer");
+  if (!trigger || !popup || !video) return;
+
+  const closeBtn = popup.querySelector('[data-action="close"]');
+  const playBtn = popup.querySelector('[data-action="play"]');
+  const stopBtn = popup.querySelector('[data-action="stop"]');
+  const speedSelect = popup.querySelector("#videoSpeed");
+  const resizeBtn = popup.querySelector('[data-action="resize"]');
+  const fullscreenBtn = popup.querySelector('[data-action="fullscreen"]');
+  const progressRange = popup.querySelector("#videoProgress");
+  const currentTimeLabel = popup.querySelector("#videoTimeCurrent");
+  const durationLabel = popup.querySelector("#videoTimeDuration");
+
+  const formatTime = (seconds) => {
+    if (!Number.isFinite(seconds)) return "00:00";
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const parts = [
+      hrs > 0 ? hrs.toString().padStart(2, "0") : null,
+      mins.toString().padStart(2, "0"),
+      secs.toString().padStart(2, "0"),
+    ].filter(Boolean);
+    return parts.join(":");
+  };
+
+  const updateTimeUI = () => {
+    if (currentTimeLabel) {
+      currentTimeLabel.textContent = formatTime(video.currentTime || 0);
+    }
+    if (durationLabel) {
+      durationLabel.textContent = formatTime(video.duration || 0);
+    }
+    if (progressRange && Number.isFinite(video.duration) && video.duration > 0) {
+      const percentage = (video.currentTime / video.duration) * 100;
+      progressRange.value = Number.isFinite(percentage) ? percentage : 0;
+    }
+  };
+
+  const updateFullscreenLabel = () => {
+    if (!fullscreenBtn) return;
+    const isFullscreen = document.fullscreenElement === video || document.fullscreenElement === popup;
+    fullscreenBtn.textContent = isFullscreen ? "Salir pantalla completa" : "Pantalla completa";
+  };
+
+  const togglePopup = (forceState) => {
+    const shouldShow =
+      typeof forceState === "boolean" ? forceState : !popup.classList.contains("is-visible");
+    popup.classList.toggle("is-visible", shouldShow);
+    popup.setAttribute("aria-hidden", (!shouldShow).toString());
+    if (!shouldShow) {
+      video.pause();
+      playBtn.textContent = "Play";
+      popup.classList.remove("is-large");
+      if (resizeBtn) {
+        resizeBtn.textContent = "Aumentar";
+      }
+      if (document.fullscreenElement && (document.fullscreenElement === video || document.fullscreenElement === popup)) {
+        document.exitFullscreen?.();
+      }
+    }
+  };
+
+  trigger.addEventListener("click", () => {
+    const willShow = !popup.classList.contains("is-visible");
+    togglePopup(willShow);
+    if (willShow) {
+      if (!video.src && !video.currentSrc) {
+        alert("Aún no se ha asignado un archivo de video al reproductor (#videoPlayer).");
+        return;
+      }
+      video.play().catch(() => {});
+      playBtn.textContent = "Pause";
+    }
+  });
+
+  closeBtn?.addEventListener("click", () => togglePopup(false));
+
+  playBtn?.addEventListener("click", () => {
+    if (!video.src && !video.currentSrc) {
+      alert("Aún no se ha asignado un archivo de video al reproductor (#videoPlayer).");
+      return;
+    }
+    if (video.paused) {
+      video.play();
+      playBtn.textContent = "Pause";
+    } else {
+      video.pause();
+      playBtn.textContent = "Play";
+    }
+  });
+
+  stopBtn?.addEventListener("click", () => {
+    video.pause();
+    video.currentTime = 0;
+    playBtn.textContent = "Play";
+    updateTimeUI();
+  });
+
+  speedSelect?.addEventListener("change", () => {
+    const rate = parseFloat(speedSelect.value);
+    if (!Number.isNaN(rate)) {
+      video.playbackRate = rate;
+    }
+  });
+
+  video.addEventListener("ended", () => {
+    playBtn.textContent = "Play";
+    updateTimeUI();
+  });
+
+  resizeBtn?.addEventListener("click", () => {
+    const isLarge = !popup.classList.contains("is-large");
+    popup.classList.toggle("is-large", isLarge);
+    resizeBtn.textContent = isLarge ? "Reducir" : "Aumentar";
+  });
+
+  progressRange?.addEventListener("input", () => {
+    if (!Number.isFinite(video.duration) || video.duration === 0) return;
+    const pct = parseFloat(progressRange.value);
+    if (!Number.isFinite(pct)) return;
+    video.currentTime = (pct / 100) * video.duration;
+    updateTimeUI();
+  });
+
+  fullscreenBtn?.addEventListener("click", () => {
+    const isFullscreen = document.fullscreenElement === video || document.fullscreenElement === popup;
+    if (!isFullscreen) {
+      const target = video.requestFullscreen ? video : popup;
+      target.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  });
+
+  document.addEventListener("fullscreenchange", updateFullscreenLabel);
+  video.addEventListener("timeupdate", updateTimeUI);
+  video.addEventListener("loadedmetadata", updateTimeUI);
+  video.addEventListener("durationchange", updateTimeUI);
+
+  updateTimeUI();
+  updateFullscreenLabel();
+}
 
 
 
