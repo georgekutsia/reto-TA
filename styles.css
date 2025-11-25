@@ -2,7 +2,7 @@
   color-scheme: dark light;
   font-family: Arial, Helvetica, sans-serif;
   --clr-black: #000000;
-  --clr-gray-dark: #333333;
+  --clr-gray: #bbb8b8;
   --clr-ink: #020617;
   --clr-midnight: #0f172a;
   --clr-navy-shadow: #041724;
@@ -170,7 +170,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0.6rem 0;
-  border-bottom: 3px solid var(--clr-silver);
+  border-bottom: 3px solid var(--clr-gray);
   background: rgba(var(--rgb-white), 0.85);
   top: 0;
   z-index: 5;
@@ -217,7 +217,7 @@ body {
   border-radius: 999px;
   padding: 0.35rem 0.9rem;
   font-weight: 600;
-  font-size: .95rem;
+  font-size: .85rem;
   cursor: pointer;
 }
 
@@ -247,7 +247,7 @@ body {
 }
 
 .header-pill {
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 
@@ -269,9 +269,9 @@ body {
   color: var(--clr-midnight);
 }
 .circle.gray i{
-  color: var(--clr-gray-dark);
+  color: var(--clr-gray);
   border-radius: 50px;
-  border: 2px solid var(--clr-gray-dark);
+  border: 2px solid var(--clr-gray);
   font-size: 1.5rem;
   padding: 0.4rem;
 
@@ -317,8 +317,8 @@ body {
 
 .nav-pill i {
   background: var(--color-white);
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -327,7 +327,7 @@ body {
   border: 2px solid rgba(var(--rgb-white), 0.85);
 }
 .nav-pill span{
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   
 }
 .red {
