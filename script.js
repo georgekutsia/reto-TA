@@ -19,6 +19,23 @@ initVideoPlayer();
 function initViewSwitcher(defaultView) {
   const views = document.querySelectorAll("[data-view]");
   const buttons = document.querySelectorAll("[data-view-target]");
+  const canvas = document.getElementById("stopwatchCanvas");
+  const getCanvasHost = (mode) =>
+    document.querySelector(`[data-canvas-host="${mode === "minimal" ? "minimal" : "full"}"]`);
+
+  const moveCanvasTo = (mode) => {
+    if (!canvas) return;
+    const host = getCanvasHost(mode);
+    if (host && canvas.parentElement !== host) {
+      host.appendChild(canvas);
+    }
+  };
+
+  const updateCanvasMode = (targetView) => {
+    const isCanvasOnly = targetView === "replica-minima";
+    document.body.classList.toggle("canvas-only-mode", isCanvasOnly);
+    moveCanvasTo(isCanvasOnly ? "minimal" : "full");
+  };
 
   const showView = (target) => {
     views.forEach((view) => {
@@ -29,6 +46,7 @@ function initViewSwitcher(defaultView) {
     buttons.forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.viewTarget === target);
     });
+    updateCanvasMode(target);
   };
 
   buttons.forEach((button) => {
@@ -294,6 +312,10 @@ function initCanvasStage() {
     loaded: 0,
   };
 
+  const alarmAudio = new Audio("public/audio/alarm-sound.mp3");
+  alarmAudio.loop = true;
+  alarmAudio.preload = "auto";
+
   const state = {
     width: canvas.clientWidth,
     height: canvas.clientHeight,
@@ -312,6 +334,9 @@ function initCanvasStage() {
       mode: "input", // input | ready | running | paused
       remaining: 0,
       lastTick: 0,
+      alertActive: false,
+      alertVisible: false,
+      alertLastToggle: 0,
     },
     lastDirection: 1,
   };
@@ -578,7 +603,23 @@ function initCanvasStage() {
     const displayX = (state.width - displayWidth) / 2;
     const displayY = bannerHeight + displayPadding;
 
-    drawTimerDisplay(displayX, displayY, displayWidth, displayHeight, getCountdownSnapshot());
+    const isAlerting = state.countdown.alertActive && state.countdown.alertVisible;
+    const countdownDisplayOptions = isAlerting
+      ? {
+          background: "#ff4d4f",
+          text: "#ffffff",
+          millis: "#ffffff",
+          border: "#8c0000",
+        }
+      : {};
+    drawTimerDisplay(
+      displayX,
+      displayY,
+      displayWidth,
+      displayHeight,
+      getCountdownSnapshot(),
+      countdownDisplayOptions
+    );
 
     if (state.countdown.mode === "input") {
       const keypadPadding = state.width * 0.04;
@@ -603,6 +644,7 @@ function initCanvasStage() {
       controlZones.countdownSet = null;
       controlZones.countdownClear = null;
       countdownDigitZones.length = 0;
+      const showStartButton = !state.countdown.alertActive;
       const buttonWidth = state.width * 0.42;
       const buttonHeight = state.height * 0.2;
       const buttonsY = displayY + displayHeight + displayPadding * 1.5;
@@ -614,16 +656,23 @@ function initCanvasStage() {
       controlZones.start = null;
       controlZones.clear = null;
 
-      const countdownLabel =
-        state.countdown.mode === "running"
-          ? "Pause"
-          : state.countdown.mode === "paused"
-          ? "Continue"
-          : "Start";
-      const countdownColor = state.countdown.mode === "paused" ? "#1a61f0" : "#10c53d";
-
-      drawControlButton(leftX, buttonsY, buttonWidth, buttonHeight, countdownLabel, countdownColor, "start");
-      drawControlButton(rightX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626", "clear");
+      if (showStartButton) {
+        const countdownLabel =
+          state.countdown.mode === "running"
+            ? "Pause"
+            : state.countdown.mode === "paused"
+            ? "Continue"
+            : "Start";
+        const countdownColor = state.countdown.mode === "paused" ? "#1a61f0" : "#10c53d";
+        drawControlButton(leftX, buttonsY, buttonWidth, buttonHeight, countdownLabel, countdownColor, "start");
+        controlZones.start = { x: leftX, y: buttonsY, width: buttonWidth, height: buttonHeight };
+        drawControlButton(rightX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626", "clear");
+        controlZones.clear = { x: rightX, y: buttonsY, width: buttonWidth, height: buttonHeight };
+      } else {
+        const clearX = centerX - buttonWidth / 2;
+        drawControlButton(clearX, buttonsY, buttonWidth, buttonHeight, "Clear", "#e42626", "clear");
+        controlZones.clear = { x: clearX, y: buttonsY, width: buttonWidth, height: buttonHeight };
+      }
     }
 
     drawBackBar();
@@ -742,16 +791,20 @@ function initCanvasStage() {
     ctx.closePath();
   }
 
-  function drawTimerDisplay(x, y, width, height, snapshot) {
+  function drawTimerDisplay(x, y, width, height, snapshot, options = {}) {
+    const background = options.background || "#dfe6ff";
+    const borderColor = options.border || "#1f1f1f";
+    const textColor = options.text || "#000000";
+    const millisColor = options.millis || textColor;
     ctx.save();
-    ctx.fillStyle = "#dfe6ff";
-    ctx.strokeStyle = "#1f1f1f";
+    ctx.fillStyle = background;
+    ctx.strokeStyle = borderColor;
     ctx.lineWidth = Math.max(4, height * 0.04);
     drawRoundedRect(x, y, width, height, 35);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = textColor;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = `700 ${height * 0.65}px Arial`;
@@ -761,6 +814,7 @@ function initCanvasStage() {
     ctx.textBaseline = "alphabetic";
     ctx.font = `${height * 0.2}px Arial`;
     const millisX = x + width - height * 0.4;
+    ctx.fillStyle = millisColor;
     ctx.fillText(snapshot.millis, millisX, y + height - height * 0.08);
     ctx.restore();
   }
@@ -932,9 +986,28 @@ function initCanvasStage() {
     state.timer.mode = "idle";
   }
 
+  function stopCountdownAlarm() {
+    if (state.countdown.alertActive) {
+      state.countdown.alertActive = false;
+      state.countdown.alertVisible = false;
+      state.countdown.alertLastToggle = 0;
+    }
+    alarmAudio.pause();
+    alarmAudio.currentTime = 0;
+  }
+
+  function triggerCountdownAlarm(timestamp) {
+    state.countdown.alertActive = true;
+    state.countdown.alertVisible = true;
+    state.countdown.alertLastToggle = timestamp || performance.now();
+    alarmAudio.currentTime = 0;
+    alarmAudio.play().catch(() => {});
+  }
+
   function handleCountdownSet() {
     const totalMs = parseCountdownInput(state.countdown.input);
     if (totalMs <= 0) return;
+    stopCountdownAlarm();
     state.countdown.remaining = totalMs;
     state.countdown.mode = "ready";
     state.countdown.lastTick = performance.now();
@@ -942,6 +1015,7 @@ function initCanvasStage() {
   }
 
   function handleCountdownClear() {
+    stopCountdownAlarm();
     state.countdown.input = "";
     state.countdown.mode = "input";
     state.countdown.remaining = 0;
@@ -959,6 +1033,7 @@ function initCanvasStage() {
   }
 
   function handleCountdownStart() {
+    stopCountdownAlarm();
     const now = performance.now();
     if (state.countdown.mode === "ready") {
       state.countdown.mode = "running";
@@ -984,6 +1059,18 @@ function initCanvasStage() {
       state.countdown.remaining = Math.max(0, state.countdown.remaining - delta);
       if (state.countdown.remaining === 0) {
         state.countdown.mode = "ready";
+        if (!state.countdown.alertActive) {
+          triggerCountdownAlarm(timestamp);
+        }
+      }
+    }
+    if (state.countdown.alertActive) {
+      if (!state.countdown.alertLastToggle) {
+        state.countdown.alertLastToggle = timestamp;
+      }
+      if (timestamp - state.countdown.alertLastToggle >= 500) {
+        state.countdown.alertVisible = !state.countdown.alertVisible;
+        state.countdown.alertLastToggle = timestamp;
       }
     }
   }

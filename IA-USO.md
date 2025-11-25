@@ -1,56 +1,57 @@
 # IA-USO
 
-Registro del uso de inteligencia artificial durante el desarrollo del reto Teaching Assistant â€“ Online Stopwatch.
+![Referencia](public/img-mg/Img1.png)
+
+Registro del uso de inteligencia artificial durante el desarrollo del reto Teaching Assistant – Online Stopwatch. El documento sirve como bitácora y guía para entender cómo la IA ayudó a levantar el canvas, el cronómetro clásico y la documentación.
 
 ---
 
 ## Modelos empleados
 
-- **ChatGPT (Codex CLI Â· GPTâ€‘4.1)**: asistente principal para idear, refactorizar y depurar la UI/UX del clon canvas y del cronÃ³metro clÃ¡sico.
-- **Apify + GPT extractor (referencia inicial)**: usado al comienzo para obtener un snippet minimalista del DOM/CSS/JS del sitio original y asÃ­ entender la estructura base del display y botones.
+- **ChatGPT (Codex CLI · GPT-4.1/4.1-mini)**  
+  Asistente principal para idear la estructura del canvas, ajustar animaciones, generar popups multimedia y redactar documentación.
+- **Apify + GPT extractor (referencia inicial)**  
+  Se consultó una vez al inicio para obtener un snippet del sitio original; sirvió como referencia del layout base, pero se reescribió por completo al carecer de laps/milisegundos.
 
 ---
 
-## Prompts / peticiones destacadas
+## Prompts / hitos destacados
 
-1. **â€œvamos a empezar a crear el canvasâ€¦ en la foto el canvas estÃ¡ en el centroâ€¦â€**  
-   - Resultado: estructura bÃ¡sica del `canvas-shell`, importaciÃ³n de imÃ¡genes de flechas y primer render con dos tarjetas (Stopwatch/Countdown).
+1. **“vamos a empezar a crear el canvas… está en el centro”**  
+   Resultado: estructura `canvas-shell`, importación de flechas y render inicial con dos paneles (Stopwatch/Countdown).
+2. **“haz que aparezca cursor pointer cuando hago hover encima de las flechas”**  
+   Resultado: `getHomePanels()` + listeners `mousemove` que actualizan `canvas.style.cursor` según la sección.
+3. **“cuando pulso la flecha de stopwatch quiero que parezca que rota”**  
+   Resultado: animación de rotación + transición; luego se simplificó a desplazamiento horizontal cuando se pidió un efecto sólo en eje X.
+4. **“cuando pulso Start debe comenzar la cuenta”**  
+   Resultado: `state.timer`, `handleStartButton`, `getTimerSnapshot`, botones Start/Pause/Continue/Clear y registro de laps dentro del canvas.
+5. **“el Countdown necesita el mismo display y números debajo”**  
+   Resultado: keypad numérico con degradados, soporte de teclado (`0-9`, `Backspace`, `Enter`), estados `input/ready/running` y botones Set/Clear.
+6. **“cuando termina la cuenta atrás quiero alarma”**  
+   Resultado: uso de `public/audio/alarm-sound.mp3`, flags `alertActive/alertVisible`, parpadeo cada 0.5?s y sólo botón Clear disponible durante la alarma.
+7. **“Répl. mínima debe cargar sólo el canvas”**  
+   Resultado: hosts `data-canvas-host="full/minimal"`, clase `body.canvas-only-mode` y lógica para mover el `canvas` entre vistas.
 
-2. **â€œahora haz que aparezca cursor pointer cuando hago hover encima de las flechasâ€¦â€**  
-   - Resultado: mapeo de paneles y funciÃ³n `getHomePanels()` + listeners de `mousemove` para cambiar `canvas.style.cursor`.
-
-3. **â€œahora cuando pulso en la flecha de stopwatch quiero que el canvas parezca que rotaâ€¦â€**  
-   - Resultado: animaciÃ³n inicial con rotaciÃ³n + transiciÃ³n; luego se simplificÃ³ a un deslizamiento horizontal cuando se solicitÃ³ quitar el giro.
-
-4. **â€œcuando pulso en el botÃ³n start en esta nueva pantallaâ€¦ que empiece una cuentaâ€¦â€**  
-   - Resultado: `state.timer` para la vista canvas con modos `idle/running/paused`, `handleStartButton`, `getTimerSnapshot`, botonera Start/Pause/Continue, etc.
-
-5. **â€œel de Countdownâ€¦ en la parte superior es el mismo displayâ€¦ y abajo hay nÃºmerosâ€**  
-   - Resultado: keypad numÃ©rico, detecciÃ³n por teclado, `state.countdown` con `input/ready/running`, Set/Clear, animaciones inversas y reutilizaciÃ³n del display.
-
-6. **â€œcuando en Countdown aparecen los botones startâ€¦ haz que tambiÃ©n se convierta en cursor pointerâ€**  
-   - Resultado: ajuste al handler de `mousemove` para compartir zonas interactivas entre Stopwatch y Countdown.
-
-*(El resto de prompts fueron iteraciones mÃ¡s pequeÃ±as: cambios de color, desplazamiento del texto, limpiar estado al volver con Back, etc.)*
+*(El resto de prompts fueron ajustes finos: tooltips personalizados, popups multimedia, animaciones premium, etc.)*
 
 ---
 
-## CÃ³mo se usÃ³ la IA en el flujo
+## Cómo se integró en el flujo
 
-- **IdeaciÃ³n visual**: describÃ­ capturas del sitio original y pedÃ­ a la IA que propusiera la estructura HTML/CSS/Canvas. En varios casos (barras azules, keypad, transiciÃ³n horizontal) construyÃ³ el boceto que luego pulÃ­ manualmente.
-- **Refactor / DRY**: solicitÃ© expresamente â€œusar el mismo cÃ³digo en ambos displaysâ€ y se generÃ³ el helper `drawTimerDisplay`, evitando duplicar la lÃ³gica de renderizado.
-- **DepuraciÃ³n guiada**: cuando el cursor dejÃ³ de cambiar en Countdown, la IA seÃ±alÃ³ que el listener sÃ³lo revisaba `controlZones` en Stopwatch, indicando exactamente dÃ³nde extender la lÃ³gica.
-- **DocumentaciÃ³n**: recopilÃ© los pasos y mandatos clave para redactar este `README` y `IA-USO.md`, asegurando que los entregables cumplan los criterios del reto.
+- **Ideación visual**: describí las capturas y la IA propuso la estructura (barras azules, keypad, transiciones). Luego ajusté manualmente el layout, colores y tipografías.
+- **Refactor / DRY**: al solicitar “usa el mismo código para ambos displays”, surgió el helper `drawTimerDisplay`, evitando duplicaciones en stopwatch/countdown.
+- **Depuración guiada**: cuando el hover dejó de responder en Countdown, la IA detectó que el listener sólo revisaba `controlZones` del Stopwatch; se extendió la lógica inmediatamente.
+- **Documentación**: la IA ayudó a condensar los requisitos y a redactar `README.md` e `IA-USO.md`, cumpliendo los entregables solicitados.
 
 ---
 
-## ReflexiÃ³n personal
+## Reflexión personal
 
-- **QuÃ© ayudÃ³**: usar la IA como compaÃ±ero de â€œwhiteboardingâ€ en el canvas acelerÃ³ mucho las iteraciones visuales. Pedirle transiciones especÃ­ficas o replicar un layout a partir de una captura redujo el tiempo de prueba/error. TambiÃ©n fue Ãºtil para mantener consistencia (e.g., cuando seÃ±alÃ© que los displays debÃ­an ser idÃ©nticos).
-- **QuÃ© no ayudÃ³**: los prompts iniciales a Apify eran demasiado generales; el snippet carecÃ­a de laps, milisegundos y lÃ³gica real, asÃ­ que tuve que reescribirlo completamente. AprendÃ­ a pedir algo mÃ¡s concreto (â€œincluye botones, estilos, milisegundosâ€) para evitar retrabajo.
+- **Qué ayudó**: usar la IA como “pair programmer” visual. Pedirle transiciones específicas o réplicas a partir de capturas aceleró las iteraciones y reforzó la coherencia entre vistas.
+- **Qué no ayudó**: los primeros prompts a Apify fueron muy generales; devolvieron un snippet sin lógica real. Aprendí a pedir secciones concretas (botones, laps, milisegundos) para evitar retrabajo.
 - **Aprendizajes**:
-  - Mantener un estado explÃ­cito (`state.timer`, `state.countdown`) facilita pedirle a la IA cambios puntuales sin romper lo existente.
-  - Conviene documentar desde el principio quÃ© partes dependen de IA para luego rellenar `IA-USO.md` sin tener que revisar todo el chat.
-  - Las animaciones y los detalles de UX (hover, cursor, transiciones) son un buen uso de IA, pero siempre deben validarse visualmente para asegurar que coinciden con la maqueta real.
+  - Mantener un estado explícito (`state.timer`, `state.countdown`, flags de alarma) simplifica pedir cambios incrementales a la IA sin romper otros flujos.
+  - Conviene desactivar tooltips/overlays globales cuando se trabaja con canvas interactivo.
+  - Documentar cada intervención desde el inicio facilita preparar este archivo sin rehacer todo el historial.
 
-En resumen, la IA funcionÃ³ como un pair-programmer enfocado en UI/UX y documentaciÃ³n, mientras que yo me encarguÃ© de validar funcionalidad, limpiar el cÃ³digo y ajustar los detalles que la maqueta necesitaba.
+En resumen, la IA funcionó como un copiloto enfocado en UI/UX y documentación; yo validé la funcionalidad, limpié el código y aseguré que el resultado coincidiera con la maqueta real.

@@ -58,25 +58,9 @@
           </section>
         </section>
 
-        <section class="view" data-view="replica-minima" aria-hidden="true">
-          <header class="view-header">
-            <p class="eyebrow">Replica minima</p>
-            <h1>Primer prototipo</h1>
-            <p>
-              Version de referencia basada en el snippet obtenido via Apify. Minimalista, centrada en
-              el display y los botones esenciales.
-            </p>
-          </header>
-          <div class="minimal-card" data-stopwatch="minimal">
-            <div class="minimal-display" data-role="display">00:00:00</div>
-            <div class="minimal-controls">
-              <button class="btn primary" data-role="start">Iniciar</button>
-              <button class="btn ghost" data-role="reset" disabled>Reiniciar</button>
-            </div>
-            <p class="note">
-              Este modo muestra el alcance minimo viable del cronometro antes de iterar sobre el
-              estilo y caracteristicas extra.
-            </p>
+        <section class="view canvas-only-view" data-view="replica-minima" aria-hidden="true">
+          <div class="canvas-only-stage" aria-label="Vista canvas enfocada">
+            <div class="canvas-shell" data-canvas-host="minimal"></div>
           </div>
         </section>
         <section class="view fullbleed is-active" data-view="replica-completa" aria-hidden="false">
@@ -167,7 +151,7 @@
 
             <section class="os-canvas" aria-label="Stopwatch canvas showcase">
               <div class="canvas-stage">
-                <div class="canvas-shell">
+                <div class="canvas-shell" data-canvas-host="full">
                   <canvas id="stopwatchCanvas" width="1100" height="640" role="img" aria-label="Stopwatch display area"></canvas>
                 </div>
               </div>

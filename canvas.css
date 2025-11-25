@@ -28,3 +28,35 @@
   border-radius: 0;
   border: none;
 }
+
+.canvas-only-view {
+  background: var(--clr-white);
+  min-height: 100vh;
+  padding: 0;
+}
+
+.canvas-only-stage {
+  min-height: calc(100vh - 2rem);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-white);
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+body.canvas-only-mode {
+  background: var(--clr-white);
+}
+
+body.canvas-only-mode .workspace {
+  padding: 0;
+}
+
+body.canvas-only-mode .view-stack {
+  width: 100%;
+}
+
+body.canvas-only-mode .canvas-shell {
+  width: min(940px, 100%);
+}
