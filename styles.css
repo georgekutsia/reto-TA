@@ -108,16 +108,14 @@ button:hover::after {
 
 .os-header-actions button,
 .os-footer a,
-.premium-card a,
-.os-premium button {
+.premium-card a {
   position: relative;
   cursor: pointer;
 }
 
 .os-header-actions button::after,
 .os-footer a::after,
-.premium-card a::after,
-.os-premium button::after {
+.premium-card a::after {
   content: "No funciona. Es solo visual para la prueba técnica...";
   position: fixed;
   left: 50%;
@@ -137,36 +135,19 @@ button:hover::after {
 
 .os-header-actions button:hover::after,
 .os-footer a:hover::after,
-.premium-card a:hover::after,
-.os-premium button:hover::after {
+.premium-card a:hover::after {
   opacity: 1;
 }
 
-.os-premium {
+.os-premium,
+.os-premium button {
   position: relative;
   cursor: pointer;
 }
 
-.os-premium::after {
-  content: "No funciona. Es solo visual para la prueba técnica...";
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(var(--rgb-black), 0.8);
-  color: var(--clr-white);
-  font-size: 20px;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 10;
-}
-
-.os-premium:hover::after {
-  opacity: 1;
+.os-premium::after,
+.os-premium button::after {
+  content: none;
 }
 
 body {
@@ -543,6 +524,7 @@ body {
   min-width: 300px;
   height: 6rem;
   justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .premium-card p {
@@ -562,9 +544,24 @@ body {
   left: -80px;
   width: 60px;
   height: 100%;
-  background: rgba(var(--rgb-white), 0.45);
+  display: block;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(var(--rgb-white), 0.25) 35%,
+    rgba(var(--rgb-white), 0.75) 50%,
+    rgba(var(--rgb-white), 0.25) 65%,
+    transparent 100%
+  );
   transform: skewX(20deg) translateX(-100%);
-  animation: premiumShine 4s ease-in-out infinite;
+  animation: premiumShine 5s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.premium-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 32px rgba(var(--rgb-black), 0.28);
 }
 
 .os-footer {
@@ -645,8 +642,9 @@ body {
 }
 
 .hero header p {
-  max-width: 60ch;
+  max-width: 70vw;
   color: var(--text-muted);
+  font-size: 1.4rem;
   margin-bottom: 1.5rem;
 }
 
@@ -699,6 +697,10 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.75rem;
+}
+
+.controls button::after {
+  content: none;
 }
 
 .btn {
@@ -776,6 +778,10 @@ body {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.minimal-card button::after {
+  content: none;
 }
 
 .minimal-card .note {
@@ -1266,19 +1272,38 @@ i{
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  box-shadow: 0 7px 4px -2px rgba(var(--rgb-warm-gray), 0.5);
+  box-shadow: 0 12px 24px rgba(var(--rgb-black), 0.18);
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .premiumShow .prem {
   position: absolute;
   top: 0;
-  left: -70px;
-  width: 50px;
+  left: -120px;
+  width: 140px;
   height: 100%;
-  background: rgba(var(--rgb-white), 0.5);
-  transform: skewX(20deg) translateX(-100%);
+  display: block;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(var(--rgb-white), 0.15) 30%,
+    rgba(var(--rgb-white), 0.75) 50%,
+    rgba(var(--rgb-white), 0.15) 70%,
+    transparent 100%
+  );
+  transform: skewX(20deg) translateX(-120%);
   animation: premiumShine 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+
+.premiumShow .premium-text,
+.premiumShow .circle,
+.premiumShow .circle i {
+  position: relative;
+  z-index: 1;
 }
 
 .premiumShow .premium-text {
@@ -1301,13 +1326,18 @@ i{
   text-decoration: underline;
 }
 
+.premiumShow:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 20px 32px rgba(var(--rgb-black), 0.28);
+}
+
 @keyframes premiumShine {
   0%, 95%{
     transform: skewX(20deg) translateX(-120%);
   }
 
   45% {
-    transform: skewX(20deg) translateX(720%);
+    transform: skewX(20deg) translateX(320%);
   }
 }
 
